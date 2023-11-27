@@ -1,0 +1,11 @@
+TODO:
+- Filter dataset [Body ONLY](https://gymvisual.com/blog/how-to/list-of-exercises)           DONE
+    * Use only Equipments' "Body Only" data
+    * Fill in missing data (
+        desc [scrap the internet],
+        rating [should we fill it using average rating?]
+    )
+    * Add a column for the images link (scrap the internet)
+    * Add steps to do the workout (scrap the internet)
+- Build recommender system (workout, based on users' level)
+- Build [nutrition](https://panganku.org/id-ID/cari_tipe) recommender based on BMI

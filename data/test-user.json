@@ -1,0 +1,37 @@
+[
+    {
+        "name": "new",
+        "gender": "Male",
+        "level": "Beginner",
+        "title": "3\/4 Sit-up",
+        "rating": 4
+    },
+    {
+        "name": "new",
+        "gender": "Male",
+        "level": "Beginner",
+        "title": "Alternate Heel Touchers",
+        "rating": 5
+    },
+    {
+        "name": "new",
+        "gender": "Male",
+        "level": "Beginner",
+        "title": "Bench Dip (knees bent)",
+        "rating": 7
+    },
+    {
+        "name": "new",
+        "gender": "Male",
+        "level": "Beginner",
+        "title": "One Arm Dip",
+        "rating": 9
+    },
+    {
+        "name": "new",
+        "gender": "Male",
+        "level": "Beginner",
+        "title": "Overhead Triceps Stretch",
+        "rating": 8
+    }
+]
