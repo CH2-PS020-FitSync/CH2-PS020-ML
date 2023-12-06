@@ -1,13 +1,17 @@
-from flask import Flask, jsonify, request
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import LabelEncoder
-import tensorflow
-import joblib
 import json
-from model.workout_recommender import FEATURES, MODEL_PATH, user_json, label_joblib, workout_json, user_act_json
-from model.workout_recommender import predict_n, encode_hist_work, get_col_to_encode
 
+import joblib
+import numpy as np
+import pandas as pd
+import tensorflow
+from flask import Flask, jsonify, request
+from sklearn.preprocessing import LabelEncoder
+
+from .database import get_user
+from .model.workout_recommender import (FEATURES, MODEL_PATH, encode_hist_work,
+                                        get_col_to_encode, label_joblib,
+                                        predict_n, user_act_json, user_json,
+                                        workout_json)
 
 app = Flask(__name__)
 
@@ -22,7 +26,7 @@ def index():
     return 'Hello World'
 
 
-@app.route('/prediction/<user_id>', methods=['POST'])
+@app.route('/workout_prediction/<user_id>', methods=['POST'])
 def predict_workout(user_id):
     if request.method == 'POST':
         with open(workout_json, 'r') as f:
@@ -48,11 +52,7 @@ def predict_workout(user_id):
         top_n_prediction = predict_n(model, LABEL_ENCODER, n, name, gender_work, df_hist, user) # For now use `user` as dummy new user as the database is not updated in realtime
         df_prediction = gender_work.set_index('title').loc[top_n_prediction].reset_index()
 
-        return jsonify(
-            {
-                'data': df_prediction.to_json()
-            }
-        )
+        return jsonify(df_prediction.to_json())
     else:
         return jsonify({
             "status": {
@@ -64,7 +64,7 @@ def predict_workout(user_id):
 
 
 def load_user(user_id):
-    pass
+    return get_user(user_id)
 
 
 if __name__ == '__main__':

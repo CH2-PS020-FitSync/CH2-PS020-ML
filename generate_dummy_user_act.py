@@ -1,10 +1,12 @@
 # Dummy User
 
-from faker import Faker
-from numpy.random import choice, random, randint
-import pandas as pd
 import json
 from pathlib import Path
+
+import pandas as pd
+from faker import Faker
+from numpy.random import choice, randint, random
+
 
 ROOT = Path(__file__).parent
 

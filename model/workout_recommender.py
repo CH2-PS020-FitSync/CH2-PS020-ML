@@ -1,17 +1,15 @@
-import joblib
 import json
 from pathlib import Path
 
+import joblib
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.layers import (Dense, Embedding, Flatten, Input, concatenate)
-from tensorflow.keras.models import Model
 
 
-ROOT = Path(__file__).parent / '../'
+ROOT = Path(__file__).parent.parent
 
 MODEL_PATH = ROOT / 'model/saved_model/dummy_workout_recommend.h5'
 FEATURES = ['gender_x', 'level_x', 'title', 'type', 'body_part', 'gender_y', 'level_y']
