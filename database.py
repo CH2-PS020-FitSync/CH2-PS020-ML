@@ -15,20 +15,18 @@ def open_connection():
 
     try:
         if os.environ.get('GAE_ENV') == 'standard':
-            conn = pymysql.connect( # Retrieving from outside now
-                host='35.226.213.127',
-                port=3306,
-                # unix_socket=unix_socket,
+            conn = pymysql.connect(
+                unix_socket=unix_socket,
                 user=db_user,
                 password=db_password,
                 db=db_name,
                 cursorclass=pymysql.cursors.DictCursor
             )
             
-        return conn
+            return conn
 
     except pymysql.MySQLError as e:
-        return e
+        print(e)
 
 
 def get_user(user_id):
