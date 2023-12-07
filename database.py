@@ -7,7 +7,7 @@ from flask import jsonify
 db_user = os.environ.get('FITSYNC_USER')
 db_password = os.environ.get('FITSYNC_PASS')
 db_name = 'main_api'
-db_connection_name = 'fitsync-406408:us-central1:main-mysql'
+db_connection_name = os.environ.get('FITSYNC_CONN')
 
 
 def open_connection():
@@ -15,18 +15,20 @@ def open_connection():
 
     try:
         if os.environ.get('GAE_ENV') == 'standard':
-            conn = pymysql.connect(
+            conn = pymysql.connect( # Retrieving from outside now
+                host='35.226.213.127',
+                port=3306,
+                # unix_socket=unix_socket,
                 user=db_user,
                 password=db_password,
-                unix_socket=unix_socket,
                 db=db_name,
                 cursorclass=pymysql.cursors.DictCursor
             )
+            
+        return conn
 
     except pymysql.MySQLError as e:
         return e
-
-    return conn
 
 
 def get_user(user_id):
@@ -37,10 +39,15 @@ def get_user(user_id):
             """
                 SELECT *
                 FROM users
-                WHERE id = %d
-            """,
-            (user_id, )
+                LIMIT 5
+            """
+            # WHERE ID = %d (user_id, )
         )
         users = cursor.fetchall()
 
-        return jsonify(users) or None
+    conn.close()
+
+    return jsonify(users)
+
+if __name__ == '__main__':
+    print(get_user(1))
