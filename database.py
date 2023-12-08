@@ -1,8 +1,12 @@
 import os
 
+import pandas as pd
 import pymysql
 from flask import jsonify
+from google.cloud.sql.connector import Connector, IPTypes
 
+
+connector = Connector()
 
 db_user = os.environ.get('FITSYNC_USER')
 db_password = os.environ.get('FITSYNC_PASS')
@@ -11,41 +15,53 @@ db_connection_name = os.environ.get('FITSYNC_CONN')
 
 
 def open_connection():
-    unix_socket = '/cloudsql/{}'.format(db_connection_name)
+    # if os.environ.get('GAE_ENV') == 'standard':
+    #     conn = pymysql.connect(
+    #         unix_socket=unix_socket,
+    #         user=db_user,
+    #         password=db_password,
+    #         db=db_name,
+    #         cursorclass=pymysql.cursors.DictCursor
+    #     )
+        
+    connection = connector.connect(
+        db_connection_name,
+        'pymysql',
+        user=db_user,
+        password=db_password,
+        db=db_name,
+        ip_type=IPTypes.PUBLIC
+    )
 
-    try:
-        if os.environ.get('GAE_ENV') == 'standard':
-            conn = pymysql.connect(
-                unix_socket=unix_socket,
-                user=db_user,
-                password=db_password,
-                db=db_name,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            
-            return conn
-
-    except pymysql.MySQLError as e:
-        print(e)
+    return connection
 
 
-def get_user(user_id):
-    conn = open_connection()
+def get_user_df(connection, user_id):
+    result = pd.read_sql(
+        """
+            SELECT *
+            FROM Users
+            WHERE id = %(user_id)s
+        """,
+        connection,
+        params={
+            'user_id': user_id
+        }
+    )
 
-    with conn.cursor() as cursor:
-        result = cursor.execute(
-            """
-                SELECT *
-                FROM users
-                LIMIT 5
-            """
-            # WHERE ID = %d (user_id, )
-        )
-        users = cursor.fetchall()
+    return result
 
-    conn.close()
+def get_hist_work_df(connection, user_id): # Add date range limit (1 month)
+    result = pd.read_sql(
+        """
+            SELECT *
+            FROM Workouts
+            WHERE userid = %(user_id)s
+        """,
+        connection,
+        params={
+            'user_id': user_id
+        }
+    )
 
-    return jsonify(users)
-
-if __name__ == '__main__':
-    print(get_user(1))
+    return result

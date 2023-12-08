@@ -94,10 +94,8 @@ def train(workout_data, model_path, train=True, history_data=None, user_data=Non
     return model
 
 
-def predict_n(model, label_encoder, n, name, gender_workout, df_hist, df_user):
-    user = df_user.copy()[df_user.name == name]
-    history = df_hist.copy()[df_hist.name == name]
-
+def predict_n(model, label_encoder, n, gender_workout, df_user):
+    user = df_user.copy()
     gender_workout = gender_workout.copy()
 
     columns_to_encode = get_col_to_encode(user, gender_workout)
