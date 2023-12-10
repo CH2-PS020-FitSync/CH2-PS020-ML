@@ -8,5 +8,6 @@ TODO:
     * Add a column for the images link (scrap the internet)
     * Add steps to do the workout (scrap the internet)
 - Build recommender system (workout, based on users' gender)                                DONE
-- Build [nutrition](https://panganku.org/id-ID/cari_tipe) recommender based on BMI          ON PROGRESS
+- Build [nutrition](https://panganku.org/id-ID/cari_tipe) recommender based on BMI          DONE
 - Fix the recommender system to use ID user instead of name                                 ON PROGRESS
+- Retrieve from FireStore for workout data

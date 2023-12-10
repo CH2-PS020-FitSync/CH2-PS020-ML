@@ -54,16 +54,16 @@ def get_vis(clean, vis):
 
     print(len(clean), len(vis), len(merged))
 
-    merged.to_json('./ML/data/gymvisual-cleaned-2.json', orient='records')
+    merged.to_json('./data/gymvisual-cleaned-2.json', orient='records')
 
 
 if __name__ == '__main__':
-    df = pd.read_json('./ML/data/gymvisual-cleaned.json')
+    df = pd.read_json('./data/gymvisual-cleaned.json')
 
-    with open('./ML/data/gymvisual-unclean-2.json', 'r') as f:
+    with open('./data/gymvisual-unclean-2.json', 'r') as f:
         uncleaned_gym = json.load(f)
 
-    with open('./ML/data/gymvisual-image_urls.json', 'r') as f:
+    with open('./data/gymvisual-image_urls.json', 'r') as f:
         vis = json.load(f)
 
     cleaned = clean(df, uncleaned_gym)

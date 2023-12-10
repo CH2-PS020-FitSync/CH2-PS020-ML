@@ -12,7 +12,7 @@ ROOT = Path(__file__).parent
 
 GENDER = ['Male', 'Female']
 LEVEL = ['Beginner', 'Intermediate', 'Expert']
-WORKOUT_JSON = ROOT / 'data/gymvisual-cleaned-2.json'
+WORKOUT_JSON = ROOT / 'data/gymvisual-use-db.json'
 OUTPUT_USER = ROOT / 'data/dummy_user.json'
 OUTPUT_ACT = ROOT / 'data/dummy_user_act.json'
 

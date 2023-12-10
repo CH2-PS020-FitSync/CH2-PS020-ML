@@ -15,14 +15,14 @@ MODEL_PATH = ROOT / 'model/saved_model/dummy_workout_recommend.h5'
 FEATURES = ['gender_x', 'level_x', 'title', 'type', 'body_part', 'gender_y', 'level_y']
 LABEL_ENCODER = dict()
 
-workout_json = ROOT / 'data/gymvisual-cleaned-2.json'
+workout_json = ROOT / 'data/gymvisual-use-db.json'
 user_json = ROOT / 'data/dummy_user.json'
 user_act_json = ROOT / 'data/dummy_user_act.json'
 hist_json = ROOT / 'data/work-hist.json'
 label_joblib = ROOT / 'workout_hist_label.joblib'
 
 
-def get_col_to_encode(*dataframes, output_path=None):
+def get_col_to_encode(*dataframes, le=dict(), output_path=None):
     cols = set()
 
     for dataframe in dataframes:
@@ -31,30 +31,30 @@ def get_col_to_encode(*dataframes, output_path=None):
 
         for col in dataframe_cols.columns:
             if col != 'name':
-                LABEL_ENCODER[col] = LABEL_ENCODER.get(col, LabelEncoder().fit(dataframe[col]))
+                le[col] = le.get(col, LabelEncoder().fit(dataframe[col]))
 
     if 'name' in cols:
         cols.remove('name')
 
     if output_path is not None:
-        joblib.dump(LABEL_ENCODER, output_path)
+        joblib.dump(le, output_path)
 
     return cols
 
 
-def encode_hist_work(df_workout, df_hist):
+def encode_hist_work(df_workout, df_hist, le=dict(), output_path='.'):
     encoded_df_workout = df_workout.copy()
     encoded_df_hist = df_hist.copy()
 
-    columns_to_encode = get_col_to_encode(encoded_df_workout, encoded_df_hist, output_path=label_joblib) # Inplace encode
+    columns_to_encode = get_col_to_encode(encoded_df_workout, encoded_df_hist, le=le, output_path=output_path) # Inplace encode
 
     for col in columns_to_encode:
 
         if col in encoded_df_workout.columns:
-            encoded_df_workout[col] = LABEL_ENCODER[col].transform(encoded_df_workout[col])
+            encoded_df_workout[col] = le[col].transform(encoded_df_workout[col])
 
         if col in encoded_df_hist.columns:
-            encoded_df_hist[col] = LABEL_ENCODER[col].transform(encoded_df_hist[col])
+            encoded_df_hist[col] = le[col].transform(encoded_df_hist[col])
 
 
     return encoded_df_workout, encoded_df_hist
@@ -87,28 +87,28 @@ def train(workout_data, model_path, train=True, history_data=None, user_data=Non
     )
 
     loss = model.evaluate(X_test, Y_test)
-    print(f"Test loss: {loss}")
 
+    print(f"Test loss: {loss}")
     model.save(model_path)
 
     return model
 
 
-def predict_n(model, label_encoder, n, gender_workout, df_user):
+def work_predict_n(model, le, n, gender_workout, df_user):
     user = df_user.copy()
     gender_workout = gender_workout.copy()
 
-    columns_to_encode = get_col_to_encode(user, gender_workout)
+    columns_to_encode = get_col_to_encode(user, gender_workout, le=le)
     print(columns_to_encode)
 
     for col in columns_to_encode:
 
         if col in user.columns:
-            user[col] = label_encoder[col].transform(user[col])
+            user[col] = le[col].transform(user[col])
 
         if col in gender_workout.columns:
-            print(label_encoder[col].classes_)
-            gender_workout[col] = label_encoder[col].transform(gender_workout[col])
+            print(le[col].classes_)
+            gender_workout[col] = le[col].transform(gender_workout[col])
 
     user_merge = pd.merge(gender_workout, user, how='cross')
 
@@ -118,7 +118,7 @@ def predict_n(model, label_encoder, n, gender_workout, df_user):
     sorted_top_n_index = top_n_index[np.argsort(-result[top_n_index][:, 0])] # Sorted from max to min
 
     top_n_recommended = gender_workout.iloc[sorted_top_n_index]
-    top_n_recommended_workout = LABEL_ENCODER['title'].inverse_transform(top_n_recommended.title)
+    top_n_recommended_workout = le['title'].inverse_transform(top_n_recommended.title)
 
     return top_n_recommended_workout
 
@@ -137,12 +137,12 @@ if __name__ == '__main__':
         axis=1, inplace=True
     )
     
-    df_workout_copy, df_hist_copy = encode_hist_work(df_workout, df_hist)
+    df_workout_copy, df_hist_copy = encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_joblib)
 
     model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
 
 
-    name = 'Thomas Lewis'
+    name = 'Wyatt Owens'
 
     user = df_user[df_user.name == name]
     gender_work = df_workout[
@@ -152,7 +152,7 @@ if __name__ == '__main__':
 
     print(user)
 
-    top_n_prediction = predict_n(model, LABEL_ENCODER, n, name, gender_work, df_hist, user) # For now use `user` as dummy new user as the database is not updated in realtime
+    top_n_prediction = work_predict_n(model, LABEL_ENCODER, n, gender_work, user) # For now use `user` as dummy new user as the database is not updated in realtime
 
     df_prediction = gender_work.set_index('title').loc[top_n_prediction].reset_index()
     print(df_prediction)

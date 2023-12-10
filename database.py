@@ -41,7 +41,7 @@ def get_user_df(connection, user_id):
         """
             SELECT *
             FROM Users
-            WHERE id = %(user_id)s
+            WHERE id = %(user_id)s;
         """,
         connection,
         params={
@@ -51,12 +51,42 @@ def get_user_df(connection, user_id):
 
     return result
 
+
+def get_user_bmi_df(connection, user_id): # 'Age', 'Weight', 'Gender', 'Height', 'Activity_Level', 'Goal'
+    result = pd.read_sql(
+        """
+            SELECT
+                max(B.createdAt) as Date,
+                U.birthDate as Age,
+                U.gender as Gender,
+                B.weight as Weight,
+                B.height as Height,
+                U.level as Activity_Level,
+                U.goalWeight as Goal
+            FROM 
+                Users U
+            LEFT OUTER JOIN BMIs B
+                ON U.id = B.UserId
+            WHERE 
+                U.id = %(user_id)s
+            GROUP BY
+                U.id, U.birthDate, U.gender, B.weight, B.height, U.level, U.goalWeight;
+        """,
+        connection,
+        params={
+            'user_id': user_id
+        }
+    ) # result.drop_duplicates(subset=['UserId'], keep='last')
+
+    return result
+
+
 def get_hist_work_df(connection, user_id): # Add date range limit (1 month)
     result = pd.read_sql(
         """
             SELECT *
             FROM Workouts
-            WHERE userid = %(user_id)s
+            WHERE userid = %(user_id)s;
         """,
         connection,
         params={
