@@ -12,7 +12,7 @@ from sklearn.preprocessing import LabelEncoder
 ROOT = Path(__file__).parent.parent
 
 MODEL_PATH = ROOT / 'model/saved_model/dummy_workout_recommend.h5'
-FEATURES = ['gender_x', 'level_x', 'index', 'type', 'bodyPart', 'gender_y', 'level_y']
+FEATURES = ['gender_x', 'level_x', 'workout_id', 'type', 'bodyPart', 'gender_y', 'level_y']
 LABEL_ENCODER = dict()
 
 workout_json = ROOT / 'data/gymvisual-use-model.json'
@@ -62,7 +62,7 @@ def encode_hist_work(df_workout, df_hist, le=dict(), output_path='.'):
 
 def train(workout_data, model_path, train=True, history_data=None, user_data=None):
     # if history_data is not None and len(history_data.id.unique()) >= 5:
-    merged_data = pd.merge(history_data, workout_data, left_on='exercise_id', right_index=True).dropna()
+    merged_data = pd.merge(history_data, workout_data, left_on='exercise_id', right_on='workout_id').dropna()
     X_train, X_test, Y_train, Y_test = train_test_split(merged_data[FEATURES], merged_data['rating'], test_size=0.2)
     # merged_data = merged_data.drop_duplicates(subset=['id'], keep='last')
 
@@ -129,13 +129,13 @@ if __name__ == '__main__':
     df_hist = pd.read_json(user_act_json)
     # df_hist = pd.read_json(hist_json)
 
+    df_workout['workout_id'] = df_workout.index
     df_workout.drop(
         ['desc', 'jpg', 'gif', 'duration', '__collections__'],
         axis=1, inplace=True
     )
     
     df_workout_copy, df_hist_copy = encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_joblib)
-    df_workout_copy.index = LABEL_ENCODER['exercise_id'].transform(df_workout_copy.index)
 
     model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
 
@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     user = df_user[df_user.name == name]
     gender_work = df_workout[
-        (df_workout.gender == user.gender.values[0]) & (~df_workout.id.isin(df_hist[df_hist.name == name].id))
+        (df_workout.gender == user.gender.values[0]) & (~df_workout.workout_id.isin(df_hist[df_hist.name == name].exercise_id))
     ]
     n = 10
 
@@ -152,5 +152,5 @@ if __name__ == '__main__':
 
     top_n_prediction = work_predict_n(model, LABEL_ENCODER, n, gender_work, user) # For now use `user` as dummy new user as the database is not updated in realtime
 
-    df_prediction = gender_work.set_index('id').loc[top_n_prediction].reset_index()
+    df_prediction = gender_work.set_index('workout_id').loc[top_n_prediction].reset_index()
     print(df_prediction)
