@@ -1,4 +1,5 @@
 import json
+from datetime import date, timedelta
 
 import joblib
 import numpy as np
@@ -62,20 +63,34 @@ def predict_workout(user_id):
         }), 405
 
 
-@app.route('/nutrition_prediction/<user_id>', methods=['GET']) # Should change to json request, use correct field name on df
-def predict_nutrition(user_id):
-    user_id = '9be2e512-8645-4c8b-b54b-a6823d65dd5a' # DUSMDAFNDFKJSHBABdhfadsvgDFAKDSBFHDSBF
+@app.route('/nutrition_prediction', methods=['POST'])
+def predict_nutrition():
+    
+    print(request.json)
 
-    if request.method == 'GET':
-        connection = open_connection()
+    if request.method == 'POST':
+        user_id = request.get_json().get('UserId', None)
 
-        df_user = get_user_bmi_df(connection, user_id).apply(_get_goals_type, axis=1)
-        
-        connection.close()
+        if user_id:
+            connection = open_connection()
 
-        prediction = nutrition_predict(NUTRITION_MODEL, df_user, NUTRITION_LABEL_ENCODER)
+            df_user = get_user_bmi_df(connection, user_id).apply(_get_goals_type, axis=1)
+            df_user['Age'] = df_user['Age'].apply(_get_age)
+            
+            connection.close()
 
-        return jsonify(prediction)
+            prediction = nutrition_predict(NUTRITION_MODEL, df_user, NUTRITION_LABEL_ENCODER)
+            print(prediction)
+
+            return jsonify(prediction)
+        else:
+            return jsonify({
+                'status': {
+                    'code': 422,
+                    'message': 'Unprocessable'
+                },
+                'data': None,
+            }), 422
     else:
         return jsonify({
             'status': {
@@ -88,11 +103,18 @@ def predict_nutrition(user_id):
 
 def _get_goals_type(df_user):
     goal_type = ['Weight Loss', 'Mild Weight Loss', 'Maintain Weight', 'Mild Weight Gain', 'Gain Weight']
-    percent = (df_user.goalWeight / df_user.Weight).round(2)
+    percent = round(df_user.Goal / df_user.Weight, 2)
 
     idx = (percent >= 0.95), (percent >= 0.98), (percent >= 1.02), (percent >= 1.05)
+    df_user['Goal'] = goal_type[sum(idx)]
 
-    return goal_type[sum(idx)]
+    return df_user
+
+
+def _get_age(birth_date):
+    age = (date.today() - birth_date) // timedelta(days=365.2425)
+
+    return age
 
 
 if __name__ == '__main__':

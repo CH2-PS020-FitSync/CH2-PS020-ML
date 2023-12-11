@@ -118,7 +118,8 @@ def work_predict_n(model, le, n, gender_workout, df_user):
     sorted_top_n_index = top_n_index[np.argsort(-result[top_n_index][:, 0])] # Sorted from max to min
 
     top_n_recommended = gender_workout.iloc[sorted_top_n_index]
-    top_n_recommended_workout = le['id'].inverse_transform(top_n_recommended.id)
+    top_n_recommended_workout = le['workout_id'].inverse_transform(top_n_recommended.workout_id)
+    print(user_merge)
 
     return top_n_recommended_workout
 
@@ -135,12 +136,13 @@ if __name__ == '__main__':
         axis=1, inplace=True
     )
     
-    df_workout_copy, df_hist_copy = encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_joblib)
+    # df_workout_copy, df_hist_copy = encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_joblib)
 
-    model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
+    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+    LABEL_ENCODER = joblib.load('./workout_hist_label.joblib')
 
 
-    name = 'Jennifer Romero'
+    name = 'Sheila Smith'
 
     user = df_user[df_user.name == name]
     gender_work = df_workout[

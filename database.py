@@ -56,7 +56,7 @@ def get_user_bmi_df(connection, user_id): # 'Age', 'Weight', 'Gender', 'Height',
     result = pd.read_sql(
         """
             SELECT
-                max(B.createdAt) as Date,
+                U.id as UserId,
                 U.birthDate as Age,
                 U.gender as Gender,
                 B.weight as Weight,
@@ -69,14 +69,12 @@ def get_user_bmi_df(connection, user_id): # 'Age', 'Weight', 'Gender', 'Height',
                 ON U.id = B.UserId
             WHERE 
                 U.id = %(user_id)s
-            GROUP BY
-                U.id, U.birthDate, U.gender, B.weight, B.height, U.level, U.goalWeight;
         """,
         connection,
         params={
             'user_id': user_id
         }
-    ) # result.drop_duplicates(subset=['UserId'], keep='last')
+    ).drop_duplicates(subset=['UserId'], keep='last')
 
     return result
 

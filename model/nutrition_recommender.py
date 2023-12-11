@@ -94,7 +94,7 @@ def nutrition_predict(model, df_user, le):
 
     X_new = df_user[FEATURES]
     prediction = model.predict(X_new)
-    result = {i: k for i, k in zip(TARGET, prediction[0])}
+    result = {i: str(k) for i, k in zip(TARGET, prediction[0])}
 
     return result
 
