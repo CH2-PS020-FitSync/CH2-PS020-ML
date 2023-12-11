@@ -12,7 +12,7 @@ ROOT = Path(__file__).parent
 
 GENDER = ['Male', 'Female']
 LEVEL = ['Beginner', 'Intermediate', 'Expert']
-WORKOUT_JSON = ROOT / 'data/gymvisual-use-db.json'
+WORKOUT_JSON = ROOT / 'data/gymvisual-use-model.json'
 OUTPUT_USER = ROOT / 'data/dummy_user.json'
 OUTPUT_ACT = ROOT / 'data/dummy_user_act.json'
 
@@ -39,12 +39,10 @@ def generate_user():
 
 def generate_act():
     df_user = pd.DataFrame(generate_user())
-    
-    with open(WORKOUT_JSON, 'r') as f:
-        workout_f = json.load(f)
 
     df_hist = []
-    df_workout = pd.json_normalize(workout_f)
+    df_workout = pd.read_json(WORKOUT_JSON, orient='index')
+    print(df_workout)
 
     df_workout.drop(
         df_workout[df_workout.level == 'Beginner'].sample(frac=.8).index,
@@ -67,7 +65,7 @@ def generate_act():
                 {
                     'name': user.name.values[0],
                     'gender': user.gender.values[0],
-                    'title': workout.title.values[0],
+                    'exercise_id': workout.index.values[0],
                     'level': user.level.values[0],
                     'rating': rating,
                     'diff': diff

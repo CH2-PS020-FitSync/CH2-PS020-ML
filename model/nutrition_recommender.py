@@ -24,9 +24,9 @@ def preprocess_df(df):
     mean_protein = (df.Estimated_Protein_Min + df.Estimated_Protein_Max) / 2.
 
     df['Activity_Level'].replace({
-            'Very Active|Extra Active': 'Expert',
-            'Moderate|Active': 'Intermediate',
-            'Sedentary|Light': 'Beginner'
+            'Very Active|Extra Active': 'expert',
+            'Moderate|Active': 'intermediate',
+            'Sedentary|Light': 'beginner'
         },
         regex=True,
         inplace=True
@@ -114,13 +114,13 @@ if __name__ == '__main__':
         'Weight': 65,
         'Gender': 'f',
         'Height': 160,
-        'Activity_Level': 'Beginner',
+        'Activity_Level': 'beginner',
         'Goal': 'Maintain Weight'
     }
     df_user = pd.DataFrame([new_user])
 
-    predict = nutrition_predict(model, df_user, LABEL_ENCODER)
+    prediction = nutrition_predict(model, df_user, LABEL_ENCODER)
 
     print('Predicted Nutritional Needs:')
-    for i, target in enumerate(TARGET):
-        print(f'{target:<25}:{predict[0][i]}')
+    for target, pred in zip(TARGET, prediction.keys()):
+        print(f'{target:<25}:{prediction[pred]}')

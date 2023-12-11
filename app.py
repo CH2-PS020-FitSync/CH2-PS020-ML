@@ -3,7 +3,7 @@ import json
 import joblib
 import numpy as np
 import pandas as pd
-import tensorflow
+import tensorflow as tf
 from flask import Flask, jsonify, request
 from sklearn.preprocessing import LabelEncoder
 
@@ -15,8 +15,8 @@ from model.nutrition_recommender import MODEL_PATH as NUTRITION_MODEL_PATH, labe
 
 app = Flask(__name__)
 
-WORK_MODEL = tensorflow.keras.models.load_model(WORK_MODEL_PATH, compile=False)
-NUTRITION_MODEL = tensorflow.keras.models.load_model(NUTRITION_MODEL_PATH, compile=False)
+WORK_MODEL = tf.keras.models.load_model(WORK_MODEL_PATH, compile=False)
+NUTRITION_MODEL = tf.keras.models.load_model(NUTRITION_MODEL_PATH, compile=False)
 
 WORK_LABEL_ENCODER = joblib.load(work_label_joblib)
 NUTRITION_LABEL_ENCODER = joblib.load(nutrition_label_joblib)
@@ -62,14 +62,14 @@ def predict_workout(user_id):
         }), 405
 
 
-@app.route('/nutrition_prediction/<user_id>', methods=['POST']) # Should change to json request, use correct field name on df
+@app.route('/nutrition_prediction/<user_id>', methods=['GET']) # Should change to json request, use correct field name on df
 def predict_nutrition(user_id):
     user_id = '9be2e512-8645-4c8b-b54b-a6823d65dd5a' # DUSMDAFNDFKJSHBABdhfadsvgDFAKDSBFHDSBF
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         connection = open_connection()
 
-        df_user = get_user_bmi_df(connection, user_id)
+        df_user = get_user_bmi_df(connection, user_id).apply(_get_goals_type, axis=1)
         
         connection.close()
 
@@ -85,6 +85,14 @@ def predict_nutrition(user_id):
             'data': None,
         }), 405
 
+
+def _get_goals_type(df_user):
+    goal_type = ['Weight Loss', 'Mild Weight Loss', 'Maintain Weight', 'Mild Weight Gain', 'Gain Weight']
+    percent = (df_user.goalWeight / df_user.Weight).round(2)
+
+    idx = (percent >= 0.95), (percent >= 0.98), (percent >= 1.02), (percent >= 1.05)
+
+    return goal_type[sum(idx)]
 
 
 if __name__ == '__main__':

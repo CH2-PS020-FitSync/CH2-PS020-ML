@@ -12,10 +12,10 @@ from sklearn.preprocessing import LabelEncoder
 ROOT = Path(__file__).parent.parent
 
 MODEL_PATH = ROOT / 'model/saved_model/dummy_workout_recommend.h5'
-FEATURES = ['gender_x', 'level_x', 'title', 'type', 'body_part', 'gender_y', 'level_y']
+FEATURES = ['gender_x', 'level_x', 'index', 'type', 'bodyPart', 'gender_y', 'level_y']
 LABEL_ENCODER = dict()
 
-workout_json = ROOT / 'data/gymvisual-use-db.json'
+workout_json = ROOT / 'data/gymvisual-use-model.json'
 user_json = ROOT / 'data/dummy_user.json'
 user_act_json = ROOT / 'data/dummy_user_act.json'
 hist_json = ROOT / 'data/work-hist.json'
@@ -61,10 +61,10 @@ def encode_hist_work(df_workout, df_hist, le=dict(), output_path='.'):
 
 
 def train(workout_data, model_path, train=True, history_data=None, user_data=None):
-    # if history_data is not None and len(history_data.title.unique()) >= 5:
-    merged_data = pd.merge(history_data, workout_data, on='title').dropna()
+    # if history_data is not None and len(history_data.id.unique()) >= 5:
+    merged_data = pd.merge(history_data, workout_data, left_on='exercise_id', right_index=True).dropna()
     X_train, X_test, Y_train, Y_test = train_test_split(merged_data[FEATURES], merged_data['rating'], test_size=0.2)
-    # merged_data = merged_data.drop_duplicates(subset=['title'], keep='last')
+    # merged_data = merged_data.drop_duplicates(subset=['id'], keep='last')
 
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(30, activation='relu'),
@@ -118,35 +118,33 @@ def work_predict_n(model, le, n, gender_workout, df_user):
     sorted_top_n_index = top_n_index[np.argsort(-result[top_n_index][:, 0])] # Sorted from max to min
 
     top_n_recommended = gender_workout.iloc[sorted_top_n_index]
-    top_n_recommended_workout = le['title'].inverse_transform(top_n_recommended.title)
+    top_n_recommended_workout = le['id'].inverse_transform(top_n_recommended.id)
 
     return top_n_recommended_workout
 
 
 if __name__ == '__main__':
-    with open(workout_json, 'r') as f:
-        workout_f = json.load(f)
-
-    df_workout = pd.json_normalize(workout_f)
+    df_workout = pd.read_json(workout_json, orient='index')
     df_user = pd.read_json(user_json)
     df_hist = pd.read_json(user_act_json)
     # df_hist = pd.read_json(hist_json)
 
     df_workout.drop(
-        ['desc', 'jpg', 'gif', 'duration.desc', 'duration.min', 'duration.rep', 'duration.set', 'duration.sec'],
+        ['desc', 'jpg', 'gif', 'duration', '__collections__'],
         axis=1, inplace=True
     )
     
     df_workout_copy, df_hist_copy = encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_joblib)
+    df_workout_copy.index = LABEL_ENCODER['exercise_id'].transform(df_workout_copy.index)
 
     model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
 
 
-    name = 'Wyatt Owens'
+    name = 'Jennifer Romero'
 
     user = df_user[df_user.name == name]
     gender_work = df_workout[
-        (df_workout.gender == user.gender.values[0]) & (~df_workout.title.isin(df_hist[df_hist.name == name].title))
+        (df_workout.gender == user.gender.values[0]) & (~df_workout.id.isin(df_hist[df_hist.name == name].id))
     ]
     n = 10
 
@@ -154,5 +152,5 @@ if __name__ == '__main__':
 
     top_n_prediction = work_predict_n(model, LABEL_ENCODER, n, gender_work, user) # For now use `user` as dummy new user as the database is not updated in realtime
 
-    df_prediction = gender_work.set_index('title').loc[top_n_prediction].reset_index()
+    df_prediction = gender_work.set_index('id').loc[top_n_prediction].reset_index()
     print(df_prediction)
