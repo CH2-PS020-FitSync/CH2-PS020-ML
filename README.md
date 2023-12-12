@@ -28,8 +28,8 @@
 
 # <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/flask/flask-original.svg" alt="flask" width="30" height="30"/> API Documentation
 The API contains two kinds of endpoint for inference
-1. Workout Prediction ➤ [`/workout_predict`](#🔗-workout_predict-post)
-2. nutrition Prediction ➤ [`/nutrition_predict`](#🔗-nutrition_predict-post)
+1. Workout Prediction ➤ [`/workout_predict`](#-workout_predict-post)
+2. nutrition Prediction ➤ [`/nutrition_predict`](#-nutrition_predict-post)
 
 <br/>**Base URL**:<br/>
 https://fitsync-ml-api-k3bfbgtn5q-et.a.run.app/
