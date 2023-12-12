@@ -22,37 +22,47 @@ NUTRITION_MODEL = tf.keras.models.load_model(NUTRITION_MODEL_PATH, compile=False
 WORK_LABEL_ENCODER = joblib.load(work_label_joblib)
 NUTRITION_LABEL_ENCODER = joblib.load(nutrition_label_joblib)
 
-with open(workout_json, 'r') as f:
-    workout_f = json.load(f)
-
 
 @app.route('/')
 def index():
     return 'Hello World'
 
 
-@app.route('/workout_prediction/<user_id>', methods=['POST']) # Should change to json request
-def predict_workout(user_id):
-    user_id = '9be2e512-8645-4c8b-b54b-a6823d65dd5a' # DUSMDAFNDFKJSHBABdhfadsvgDFAKDSBFHDSBF
+@app.route('/workout_prediction', methods=['POST']) # JSON Request -> UserId
+def predict_workout():
 
     if request.method == 'POST':
-        connection = open_connection()
-        
-        df_workout = pd.json_normalize(workout_f)
-        df_user = get_user_df(connection, user_id)
-        df_hist = get_hist_work_df(connection, user_id)
-        
-        connection.close()
+        user_id = request.get_json().get('UserId', None)
 
-        gender_work = df_workout[
-            (df_workout.gender == df_user.gender.values[0]) & (~df_workout.title.isin(df_hist[df_hist.UserId == df_user.id.values[0]].ExerciseId)) # Should change
-        ]
+        if user_id:
+            connection = open_connection()
+            
+            df_workout = pd.read_json(workout_json, orient='index')
+            df_user = get_user_df(connection, user_id)
+            df_hist = get_hist_work_df(connection, user_id)
+            
+            connection.close()
 
-        n = 10
-        top_n_prediction = work_predict_n(WORK_MODEL, WORK_LABEL_ENCODER, n, gender_work, df_user)
-        df_prediction = gender_work.set_index('title').loc[top_n_prediction].reset_index()
+            df_user['gender'] = df_user['gender'].str.title()
+            df_user['level'] = df_user['level'].str.title()
+            df_workout['workout_id'] = df_workout.index
+            gender_work = df_workout[
+                (df_workout.gender == df_user.gender.values[0]) & (~df_workout.workout_id.isin(df_hist[df_hist.UserId == df_user.id.values[0]].ExerciseId)) # Should change
+            ]
 
-        return df_prediction.to_json()
+            n = 10
+            top_n_prediction = work_predict_n(WORK_MODEL, WORK_LABEL_ENCODER, n, gender_work, df_user)
+            df_prediction = gender_work.set_index('workout_id').loc[top_n_prediction].reset_index()
+
+            return df_prediction.to_json()
+        else:
+            return jsonify({
+                'status': {
+                    'code': 422,
+                    'message': 'Unprocessable'
+                },
+                'data': None,
+            }), 422
     else:
         return jsonify({
             'status': {
@@ -63,10 +73,8 @@ def predict_workout(user_id):
         }), 405
 
 
-@app.route('/nutrition_prediction', methods=['POST'])
+@app.route('/nutrition_prediction', methods=['POST']) # JSON Request -> UserId
 def predict_nutrition():
-    
-    print(request.json)
 
     if request.method == 'POST':
         user_id = request.get_json().get('UserId', None)

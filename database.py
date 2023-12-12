@@ -1,4 +1,5 @@
 import os
+from datetime import date, timedelta
 
 import pandas as pd
 import pymysql
@@ -79,16 +80,21 @@ def get_user_bmi_df(connection, user_id): # 'Age', 'Weight', 'Gender', 'Height',
     return result
 
 
-def get_hist_work_df(connection, user_id): # Add date range limit (1 month)
+def get_hist_work_df(connection, user_id):
+    today = date.today()
+    month_ago = today - timedelta(days=30) # Just assume it's 30 days
+
     result = pd.read_sql(
         """
             SELECT *
             FROM Workouts
-            WHERE userid = %(user_id)s;
+            WHERE userid = %(user_id)s AND createdAt BETWEEN %(date_ago)s AND %(date_now)s;
         """,
         connection,
         params={
-            'user_id': user_id
+            'user_id': user_id,
+            'date_ago': today.strftime('%Y/%m/%d'),
+            'date_now': month_ago.strftime('%Y/%m/%d')
         }
     )
 

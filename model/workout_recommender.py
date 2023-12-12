@@ -136,10 +136,9 @@ if __name__ == '__main__':
         axis=1, inplace=True
     )
     
-    # df_workout_copy, df_hist_copy = encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_joblib)
+    df_workout_copy, df_hist_copy = encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_joblib)
 
-    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
-    LABEL_ENCODER = joblib.load('./workout_hist_label.joblib')
+    model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
 
 
     name = 'Sheila Smith'
@@ -152,7 +151,7 @@ if __name__ == '__main__':
 
     print(user)
 
-    top_n_prediction = work_predict_n(model, LABEL_ENCODER, n, gender_work, user) # For now use `user` as dummy new user as the database is not updated in realtime
+    top_n_prediction = work_predict_n(model, LABEL_ENCODER, n, gender_work, user)
 
     df_prediction = gender_work.set_index('workout_id').loc[top_n_prediction].reset_index()
     print(df_prediction)
