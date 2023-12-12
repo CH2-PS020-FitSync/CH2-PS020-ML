@@ -25,3 +25,14 @@
         </tr>
     </tbody>
 </table>
+
+# API Documentation
+The API contains two kinds of endpoint for inference
+1. Workout Prediction -> [`/workout_predict`](#🔗-workout_predict)
+2. nutrition Prediction -> [`/nutrition_predict`](#🔗-nutrition_predict)
+
+## 🔗 /workout_predict
+
+
+## 🔗 /nutrition_predict
+

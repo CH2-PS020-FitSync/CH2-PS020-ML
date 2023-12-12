@@ -69,7 +69,7 @@ def predict_workout():
                     "code": 200,
                     "message": "Success"
                 },
-                "data": df_prediction.to_dict()
+                "data": df_prediction.to_dict(orient='records')
             }), 200
         else:
             return jsonify({
