@@ -82,11 +82,11 @@ def predict_workout():
         }), 405
 
 
-@app.route('/nutrition_prediction', methods=['GET']) # JSON Request -> UserId
+@app.route('/nutrition_prediction', methods=['POST']) # JSON Request -> UserId
 def predict_nutrition():
 
-    if request.method == 'GET':
-        user_id = '9be2e512-8645-4c8b-b54b-a6823d65dd5a' #fggdsafdsgfsdfadafdsfdsfaafdss
+    if request.method == 'POST':
+        user_id = request.get_json().get('UserId', None)
 
         if user_id:
             connection = open_connection()
@@ -140,4 +140,4 @@ def _get_age(birth_date):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
