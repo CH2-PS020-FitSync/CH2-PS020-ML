@@ -11,9 +11,9 @@ COPY . ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 80
+EXPOSE 8080
 
 ENV HOST 0.0.0.0
-ENV PORT 80
+ENV PORT 8080
 
-CMD ["gunicorn", "-w", "2", "-b" , "$HOST:$PORT", "app:app"]
+CMD ["gunicorn", "-w", "2", "-b" , "${HOST}:${PORT}", "app:app"]
