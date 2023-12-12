@@ -1,8 +1,6 @@
-import json
 from pathlib import Path
 
 import joblib
-import numpy as np
 import pandas as pd
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
@@ -74,8 +72,8 @@ def train(dataframe, model_path):
     prediction = model.predict(X_test)
     loss = model.evaluate(X_test, y_test)
 
-    print("Prediction:", prediction[:10])
-    print("Loss:", loss[:10])
+    print('Prediction:', prediction[:10])
+    print('Loss:', loss[:10])
     model.save(model_path)
 
     return model

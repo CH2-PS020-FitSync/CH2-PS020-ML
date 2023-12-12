@@ -40,7 +40,10 @@ def open_connection():
 def get_user_df(connection, user_id):
     result = pd.read_sql(
         """
-            SELECT *
+            SELECT
+                id as user_id,
+                gender,
+                level
             FROM Users
             WHERE id = %(user_id)s;
         """,
@@ -86,7 +89,10 @@ def get_hist_work_df(connection, user_id):
 
     result = pd.read_sql(
         """
-            SELECT *
+            SELECT
+                ExerciseId as workout_id,
+                UserId as user_id,
+                rating
             FROM Workouts
             WHERE userid = %(user_id)s AND createdAt BETWEEN %(date_ago)s AND %(date_now)s;
         """,

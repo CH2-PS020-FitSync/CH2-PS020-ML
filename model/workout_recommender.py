@@ -13,6 +13,7 @@ ROOT = Path(__file__).parent.parent
 
 MODEL_PATH = ROOT / 'model/saved_model/dummy_workout_recommend.h5'
 FEATURES = ['gender_x', 'level_x', 'workout_id', 'type', 'bodyPart', 'gender_y', 'level_y']
+WORKOUT_DROP = ['desc', 'jpg', 'gif', 'duration', '__collections__']
 LABEL_ENCODER = dict()
 
 workout_json = ROOT / 'data/gymvisual-use-model.json'
@@ -22,19 +23,22 @@ hist_json = ROOT / 'data/work-hist.json'
 label_joblib = ROOT / 'workout_hist_label.joblib'
 
 
-def get_col_to_encode(*dataframes, le=dict(), output_path=None):
+def get_col_to_encode(*dataframes, le=None, output_path=None):
     cols = set()
+    not_encoded = {'name', 'user_id'}
 
     for dataframe in dataframes:
         dataframe_cols = dataframe.select_dtypes(exclude=[np.number])
         cols.update(dataframe_cols)
 
+        if le is None:
+            continue
+
         for col in dataframe_cols.columns:
-            if col != 'name':
+            if col not in not_encoded:
                 le[col] = le.get(col, LabelEncoder().fit(dataframe[col]))
 
-    if 'name' in cols:
-        cols.remove('name')
+    cols = cols.symmetric_difference(not_encoded)
 
     if output_path is not None:
         joblib.dump(le, output_path)
@@ -81,14 +85,14 @@ def train(workout_data, model_path, train=True, history_data=None, user_data=Non
 
     history = model.fit(
         X_train, Y_train,
-        epochs=100,
+        epochs=200,
         validation_data=(X_test, Y_test),
         verbose=2
     )
 
     loss = model.evaluate(X_test, Y_test)
 
-    print(f"Test loss: {loss}")
+    print(f'Test loss: {loss}')
     model.save(model_path)
 
     return model
@@ -98,8 +102,7 @@ def work_predict_n(model, le, n, gender_workout, df_user):
     user = df_user.copy()
     gender_workout = gender_workout.copy()
 
-    columns_to_encode = get_col_to_encode(user, gender_workout, le=le)
-    print(columns_to_encode)
+    columns_to_encode = get_col_to_encode(user, gender_workout)
 
     for col in columns_to_encode:
 
@@ -107,7 +110,6 @@ def work_predict_n(model, le, n, gender_workout, df_user):
             user[col] = le[col].transform(user[col])
 
         if col in gender_workout.columns:
-            print(le[col].classes_)
             gender_workout[col] = le[col].transform(gender_workout[col])
 
     user_merge = pd.merge(gender_workout, user, how='cross')
@@ -119,7 +121,6 @@ def work_predict_n(model, le, n, gender_workout, df_user):
 
     top_n_recommended = gender_workout.iloc[sorted_top_n_index]
     top_n_recommended_workout = le['workout_id'].inverse_transform(top_n_recommended.workout_id)
-    print(user_merge)
 
     return top_n_recommended_workout
 
@@ -132,7 +133,7 @@ if __name__ == '__main__':
 
     df_workout['workout_id'] = df_workout.index
     df_workout.drop(
-        ['desc', 'jpg', 'gif', 'duration', '__collections__'],
+        WORKOUT_DROP,
         axis=1, inplace=True
     )
     

@@ -1,6 +1,5 @@
-import json
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 df_path = './data/gymvisual-cleaned-2.json'
 df = pd.read_json(df_path)

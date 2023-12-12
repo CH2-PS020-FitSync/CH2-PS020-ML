@@ -42,7 +42,6 @@ def generate_act():
 
     df_hist = []
     df_workout = pd.read_json(WORKOUT_JSON, orient='index')
-    print(df_workout)
 
     df_workout.drop(
         df_workout[df_workout.level == 'Beginner'].sample(frac=.8).index,
