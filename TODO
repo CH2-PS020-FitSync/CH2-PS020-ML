@@ -9,5 +9,5 @@ TODO:
     * Add steps to do the workout (scrap the internet)
 - Build recommender system (workout, based on users' gender)                                DONE
 - Build [nutrition](https://panganku.org/id-ID/cari_tipe) recommender based on BMI          DONE
-- Fix the recommender system to use ID user instead of name                                 ON PROGRESS
-- Retrieve from FireStore for workout data
+- Fix the recommender system to use ID user instead of name                                 DONE
+- Retrieve from FireStore for workout data                                                  USED EXPORT DB

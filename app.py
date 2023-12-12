@@ -65,27 +65,27 @@ def predict_workout():
             df_prediction = gender_work.set_index('workout_id').loc[top_n_prediction].reset_index()
 
             return jsonify({
-                "status": {
-                    "code": 200,
-                    "message": "Success"
-                },
-                "data": df_prediction.to_dict(orient='records')
+                'data': df_prediction.to_dict(orient='records'),
+                'status': {
+                    'code': 200,
+                    'message': 'Success'
+                }
             }), 200
         else:
             return jsonify({
+                'data': None,
                 'status': {
                     'code': 422,
                     'message': 'Unprocessable'
-                },
-                'data': None,
+                }
             }), 422
     else:
         return jsonify({
+            'data': None,
             'status': {
                 'code': 405,
                 'message': 'Method not allowed'
-            },
-            'data': None,
+            }
         }), 405
 
 
@@ -106,27 +106,27 @@ def predict_nutrition():
             prediction = nutrition_predict(NUTRITION_MODEL, df_user, NUTRITION_LABEL_ENCODER)
 
             return jsonify({
-                "status": {
-                    "code": 200,
-                    "message": "Success"
-                },
-                "data": prediction
+                'data': prediction,
+                'status': {
+                    'code': 200,
+                    'message': 'Success'
+                }
             }), 200
         else:
             return jsonify({
+                'data': None,
                 'status': {
                     'code': 422,
                     'message': 'Unprocessable'
-                },
-                'data': None,
+                }
             }), 422
     else:
         return jsonify({
+            'data': None,
             'status': {
                 'code': 405,
                 'message': 'Method not allowed'
-            },
-            'data': None,
+            }
         }), 405
 
 
