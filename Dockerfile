@@ -1,12 +1,19 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.8-slim-buster
+FROM python:3.8-slim
 
-WORKDIR /python-docker
+# Allow statements and log messages to immediately appear in the logs
+ENV PYTHONUNBUFFERED True
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+WORKDIR /app
 
-COPY . .
+COPY . ./
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 80
+
+ENV HOST 0.0.0.0
+ENV PORT 80
+
+CMD ["gunicorn", "-w", "2", "-b" , "$HOST:$PORT", "app:app"]

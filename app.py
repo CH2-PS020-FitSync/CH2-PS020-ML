@@ -16,6 +16,13 @@ from model.workout_recommender import WORKOUT_DROP
 from model.workout_recommender import label_joblib as work_label_joblib
 from model.workout_recommender import work_predict_n, workout_json
 
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
+
 
 app = Flask(__name__)
 
