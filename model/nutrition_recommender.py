@@ -1,10 +1,14 @@
 from pathlib import Path
 
-import joblib
 import pandas as pd
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
+
+try:
+    from .custom_encoder import CustomEncoder
+except ImportError:
+    from custom_encoder import CustomEncoder
+
 
 ROOT = Path(__file__).parent.parent
 
@@ -12,10 +16,10 @@ MODEL_PATH = ROOT / 'model/saved_model/nutrition_recommend.h5'
 FEATURES = ['Age', 'Weight', 'Gender', 'Height', 'Activity_Level', 'Goal']
 TARGET = ['Estimated_Calories', 'Estimated_Carbohydrates', 'Estimated_Protein_Mean', 'Estimated_Fat']
 CAT_COLS = ['Gender', 'Activity_Level', 'Goal']
-LABEL_ENCODER = dict()
+LABEL_ENCODER = CustomEncoder()
 
 nutrition_json = ROOT / 'data/nutrition_data.json'
-label_joblib = ROOT / 'nutrition_label.joblib'
+label_json = ROOT / 'nutrition_label.json'
 
 
 def preprocess_df(df):
@@ -41,14 +45,14 @@ def preprocess_df(df):
 
 def encode_cols(df, cols, le, output_path):
     for col in cols:
-        le[col] = LabelEncoder()
-        df[col] = le[col].fit_transform(df[col])
+        df[col] = le.fit_transform(col, df[col])
 
-    joblib.dump(le, output_path)
+    le.save_encoder(output_path)
 
 
 def train(dataframe, model_path):
-    X_train, X_test, y_train, y_test = train_test_split(dataframe[FEATURES], dataframe[TARGET], train_size=0.9)
+    X_train, X_test, y_train, y_test = \
+        train_test_split(dataframe[FEATURES], dataframe[TARGET], train_size=0.9)
 
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(32, activation='relu', input_shape=(len(FEATURES),)),
@@ -88,7 +92,7 @@ def nutrition_predict(model, df_user, le):
     )
 
     for col in CAT_COLS:
-        df_user[col] = le[col].transform(df_user[col])
+        df_user[col] = le.transform(col, df_user[col])
 
     X_new = df_user[FEATURES]
     prediction = model.predict(X_new)
@@ -101,7 +105,7 @@ if __name__ == '__main__':
     df_nutrition = pd.read_json(nutrition_json)
 
     preprocess_df(df_nutrition)
-    encode_cols(df_nutrition, CAT_COLS, LABEL_ENCODER, label_joblib)
+    encode_cols(df_nutrition, CAT_COLS, LABEL_ENCODER, label_json)
 
     model = train(df_nutrition, MODEL_PATH)
 

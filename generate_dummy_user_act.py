@@ -22,13 +22,14 @@ faker = Faker()
 def generate_user():
     df_user = [
         {
+            'user_id': f'dummy_{id}',
             'name': faker.name(),
             'gender': choice(GENDER),
             'weight': round(random(), 1) + randint(40, 70),
             'height': randint(150, 180),
             'age': randint(15, 30),
             'level': choice(LEVEL)
-        } for _ in range(100)
+        } for id in range(100)
     ]
 
     with open(OUTPUT_USER, 'w+') as f:
@@ -54,7 +55,7 @@ def generate_act():
         u_gender = user.gender.values[0]
 
         for _ in range(randint(20, 100)):
-            workout_det_level = df_workout[(df_workout.gender == 'Female') & (random() < 0.4 or df_workout.level == 'Expert')]
+            workout_det_level = df_workout[(df_workout.gender == u_gender) & (random() < 0.4 or df_workout.level == user.level.values[0])]
             workout = workout_det_level.sample(1)
             w_level = LEVEL.index(workout.level.values[0])
             diff = abs(u_level - w_level)
@@ -62,8 +63,9 @@ def generate_act():
 
             df_hist.append(
                 {
+                    'user_id': user.user_id.values[0],
                     'name': user.name.values[0],
-                    'gender': user.gender.values[0],
+                    'gender': u_gender,
                     'exercise_id': workout.index.values[0],
                     'level': user.level.values[0],
                     'rating': rating,

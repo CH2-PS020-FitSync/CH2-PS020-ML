@@ -45,14 +45,7 @@ https://fitsync-ml-api-k3bfbgtn5q-et.a.run.app/
 ```json
 {
     "data": [
-        {
-            "bodyPart": "<string>",
-            "gender": "<string>",
-            "level": "<string>",
-            "title": "<string>",
-            "type": "<string>",
-            "workout_id": "<string>"
-        },
+        "<id_string>",
         ...
     ],
     "status": {

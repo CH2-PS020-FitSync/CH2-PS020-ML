@@ -1,19 +1,19 @@
 import os
 from datetime import date, timedelta
 
-import joblib
 import pandas as pd
 import tensorflow as tf
 from flask import Flask, jsonify, request
 
 from database import (get_hist_work_df, get_user_bmi_df, get_user_df,
                       open_connection)
+from model.custom_encoder import CustomEncoder
 from model.nutrition_recommender import MODEL_PATH as NUTRITION_MODEL_PATH
-from model.nutrition_recommender import label_joblib as nutrition_label_joblib
+from model.nutrition_recommender import label_json as nutrition_label_json
 from model.nutrition_recommender import nutrition_predict
 from model.workout_recommender import MODEL_PATH as WORK_MODEL_PATH
 from model.workout_recommender import WORKOUT_DROP
-from model.workout_recommender import label_joblib as work_label_joblib
+from model.workout_recommender import label_json as work_label_json
 from model.workout_recommender import work_predict_n, workout_json
 
 try:
@@ -29,8 +29,8 @@ app = Flask(__name__)
 WORK_MODEL = tf.keras.models.load_model(WORK_MODEL_PATH, compile=False)
 NUTRITION_MODEL = tf.keras.models.load_model(NUTRITION_MODEL_PATH, compile=False)
 
-WORK_LABEL_ENCODER = joblib.load(work_label_joblib)
-NUTRITION_LABEL_ENCODER = joblib.load(nutrition_label_joblib)
+WORK_LABEL_ENCODER = CustomEncoder(encoder_path=work_label_json, load_encoder=True)
+NUTRITION_LABEL_ENCODER = CustomEncoder(encoder_path=nutrition_label_json, load_encoder=True)
 
 
 @app.route('/')
@@ -57,15 +57,16 @@ def predict_workout():
             df_user['level'] = df_user['level'].str.title()
             df_workout['workout_id'] = df_workout.index
             gender_work = df_workout[
-                (df_workout.gender == df_user.gender.values[0]) & (~df_workout.workout_id.isin(df_hist[df_hist.user_id == df_user.user_id.values[0]].workout_id))
+                (df_workout.gender == df_user.gender.values[0]) & \
+                    (~df_workout.workout_id.isin(df_hist[df_hist.user_id == df_user.user_id.values[0]].workout_id))
             ]
 
             n = 10
             top_n_prediction = work_predict_n(WORK_MODEL, WORK_LABEL_ENCODER, n, gender_work, df_user)
-            df_prediction = gender_work.set_index('workout_id').loc[top_n_prediction].reset_index()
+            prediction_id = top_n_prediction.index.values.tolist()
 
             return jsonify({
-                'data': df_prediction.to_dict(orient='records'),
+                'data': prediction_id,
                 'status': {
                     'code': 200,
                     'message': 'Success'
