@@ -26,6 +26,9 @@ except ImportError:
 
 app = Flask(__name__)
 
+HOST = os.environ.get('FLASK_RUN_HOST', '0.0.0.0')
+PORT = int(os.environ.get('FLASK_RUN_PORT', 8080))
+
 WORK_MODEL = tf.keras.models.load_model(WORK_MODEL_PATH, compile=False)
 NUTRITION_MODEL = tf.keras.models.load_model(NUTRITION_MODEL_PATH, compile=False)
 
@@ -148,4 +151,4 @@ def _get_age(birth_date):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+    app.run(host=HOST, port=PORT)

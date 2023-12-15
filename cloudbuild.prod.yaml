@@ -17,6 +17,8 @@ steps:
       - 'gcr.io/$PROJECT_ID/prod-fitsync-ml-api:$COMMIT_SHA'
       - '--region'
       - 'asia-southeast2'
+      - '--memory'
+      - '1Gi'
       - '--service-account'
       - 'ml-team-cloud-run@fitsync-406408.iam.gserviceaccount.com'
       - '--add-cloudsql-instances'

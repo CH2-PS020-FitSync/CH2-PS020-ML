@@ -1,3 +1,12 @@
+# FitSync's Machine Learning
+Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
+
+# Table of Contents
+* [Machine Learning Team](#-machine-learning-team)
+* [Installation](#installation)
+* [Usage](#usage)
+* [API Documentation](#-api-documentation)
+
 # <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tensorflow/tensorflow-original.svg" alt="flask" width="30" height="30"/> Machine Learning Team
 <table>
     <thead>
@@ -25,6 +34,34 @@
         </tr>
     </tbody>
 </table>
+
+# Installation
+1. Clone the repository: 
+    ```bash
+    git clone https://github.com/CH2-PS020-FitSync/CH2-PS020-ML.git
+    ```
+2. Navigate to the project directory:
+    ```bash
+    cd CH2-PS020-ML
+    ```
+3. Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+# Usage
+1. Set up the environments variable:
+    ```properties
+    FLASK_RUN_HOST=<HOST>
+    FLASK_RUN_PORT=<PORT>
+    FITSYNC_CONN=<DB_CONNECTION>
+    FITSYNC_USER=<DB_USER>
+    FITSYNC_PASS=<DB_PASS>
+    ```
+2. Run the application:
+    ```cmd
+    flask run [--host=<HOST>] [--port=<PORt>]
+    ```
 
 # <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/flask/flask-original.svg" alt="flask" width="30" height="30"/> API Documentation
 The API contains two kinds of endpoint for inference

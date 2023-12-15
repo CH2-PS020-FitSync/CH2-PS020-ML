@@ -145,14 +145,12 @@ if __name__ == '__main__':
     df_workout_copy, df_hist_copy = \
         encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_json)
 
-    # model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
-    model = tf.keras.models.load_model(MODEL_PATH)
-    LABEL_ENCODER = CustomEncoder(label_json, load_encoder=True)
+    model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
 
 
     user = pd.DataFrame([{
-        "user_id": "dummy_0",
-        "name": "Pamela Blackwell",
+        "user_id": "x",
+        "name": "New",
         "gender": "Female",
         "weight": 62.5,
         "height": 155,
