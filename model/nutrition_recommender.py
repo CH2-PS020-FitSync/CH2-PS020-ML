@@ -56,6 +56,7 @@ def train(dataframe, model_path):
 
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(32, activation='relu', input_shape=(len(FEATURES),)),
+        tf.keras.layers.Dense(16, activation='relu'),
         tf.keras.layers.Dense(len(TARGET))
     ])
 
@@ -112,12 +113,12 @@ if __name__ == '__main__':
 
     # Weight goals must be transformed from actual goal in kgs to percentage of body mass to lose or gain
     new_user = {
-        'Age': 17,
+        'Age': 27,
         'Weight': 65,
         'Gender': 'f',
-        'Height': 160,
-        'Activity_Level': 'beginner',
-        'Goal': 'Maintain Weight'
+        'Height': 164,
+        'Activity_Level': 'expert',
+        'Goal': 'Weight Loss'
     }
     df_user = pd.DataFrame([new_user])
 

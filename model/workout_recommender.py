@@ -70,7 +70,7 @@ def encode_hist_work(df_workout, df_hist, le=dict(), output_path='.'):
 
 def train(workout_data, model_path, train=True, history_data=None, user_data=None):
     # if history_data is not None and len(history_data.id.unique()) >= 5:
-    merged_data = pd.merge(history_data, workout_data, left_on='exercise_id', right_on='workout_id').dropna()
+    merged_data = pd.merge(history_data, workout_data, on='workout_id').dropna()
     X_train, X_test, Y_train, Y_test = \
         train_test_split(merged_data[FEATURES], merged_data['rating'], test_size=0.2)
     # merged_data = merged_data.drop_duplicates(subset=['id'], keep='last')
@@ -78,7 +78,6 @@ def train(workout_data, model_path, train=True, history_data=None, user_data=Non
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(30, activation='relu'),
         tf.keras.layers.Dense(10, activation='relu'),
-        tf.keras.layers.Dropout(0.5),
         tf.keras.layers.Dense(1, activation='relu'),
     ])
 
@@ -90,7 +89,7 @@ def train(workout_data, model_path, train=True, history_data=None, user_data=Non
 
     history = model.fit(
         X_train, Y_train,
-        epochs=200,
+        epochs=100,
         validation_data=(X_test, Y_test),
         verbose=2
     )
@@ -141,19 +140,29 @@ if __name__ == '__main__':
         WORKOUT_DROP,
         axis=1, inplace=True
     )
+    df_hist.rename(columns={'exercise_id': 'workout_id'}, inplace=True)
     
     df_workout_copy, df_hist_copy = \
         encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_json)
 
-    model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
+    # model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
+    model = tf.keras.models.load_model(MODEL_PATH)
+    LABEL_ENCODER = CustomEncoder(label_json, load_encoder=True)
 
 
-    name = 'Pamela Blackwell'
+    user = pd.DataFrame([{
+        "user_id": "dummy_0",
+        "name": "Pamela Blackwell",
+        "gender": "Female",
+        "weight": 62.5,
+        "height": 155,
+        "age": 17,
+        "level": "Expert"
+    }])
 
-    user = df_user[df_user.name == name]
     gender_work = df_workout[
         (df_workout.gender == user.gender.values[0]) & \
-            (~df_workout.workout_id.isin(df_hist[df_hist.name == name].exercise_id))
+            (~df_workout.workout_id.isin(df_hist[df_hist.user_id == user.user_id.values[0]].workout_id))
     ]
     n = 10
 
