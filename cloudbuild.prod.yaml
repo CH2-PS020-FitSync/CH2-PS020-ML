@@ -1,0 +1,35 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/prod-fitsync-ml-api:$COMMIT_SHA', '.']
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/prod-fitsync-ml-api:$COMMIT_SHA']
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'prod-fitsync-ml-api'
+      - '--allow-unauthenticated'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/prod-fitsync-ml-api:$COMMIT_SHA'
+      - '--region'
+      - 'asia-southeast2'
+      - '--service-account'
+      - 'ml-team-cloud-run@fitsync-406408.iam.gserviceaccount.com'
+      - '--add-cloudsql-instances'
+      - 'fitsync-406408:asia-southeast2:prod-main-mysql'
+      - '--port'
+      - '8080'
+      - '--labels'
+      - 'environment=production'
+      - '--env-vars-file'
+      - 'env.prod.yaml'
+      - '--set-secrets'
+      - 'FITSYNC_PASS=fitsync-ml-api-PROD_DB_PASSWORD:latest'
+images:
+  - 'gcr.io/$PROJECT_ID/prod-fitsync-ml-api:$COMMIT_SHA'
+options:
+  logging: CLOUD_LOGGING_ONLY
