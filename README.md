@@ -20,17 +20,29 @@ Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
         <tr>
             <td>Darrel Cyril Gunawan</td>
             <td>M108BSY1617</td>
-            <td><a href="#">Github</a></td>
+            <td>
+                <a href="https://github.com/Darrelcyril29/">
+                    <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="Github" />
+                </a>
+            </td>
         </tr>
         <tr>
             <td>Nigel Kusdenata</td>
             <td>M108BSY1102</td>
-            <td><a href="#">Github</a></td>
+            <td>
+                <a href="https://github.com/NigelKus/">
+                    <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="Github" />
+                </a>
+            </td>
         </tr>
         <tr>
             <td>Steven Tribethran</td>
             <td>M694BSY0582</td>
-            <td><a href="https://github.com/Insisted">Insisted</a></td>
+            <td>
+                <a href="https://github.com/Insisted/">
+                    <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="Github" />
+                </a>
+            </td>
         </tr>
     </tbody>
 </table>
@@ -60,7 +72,7 @@ Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
     ```
 2. Run the application:
     ```cmd
-    flask run [--host=<HOST>] [--port=<PORt>]
+    flask run [--host=<HOST>] [--port=<PORT>]
     ```
 
 # <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/flask/flask-original.svg" alt="flask" width="30" height="30"/> API Documentation
@@ -69,7 +81,7 @@ The API contains two kinds of endpoint for inference
 2. nutrition Prediction ➤ [`/nutrition_predict`](#-nutrition_predict-post)
 
 <br/>**Base URL**:<br/>
-https://fitsync-ml-api-k3bfbgtn5q-et.a.run.app/
+https://prod-fitsync-ml-api-k3bfbgtn5q-et.a.run.app/
 
 ## 🔗 /workout_predict `POST`
 **Body:**
