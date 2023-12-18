@@ -59,6 +59,7 @@ def predict_workout():
             df_user['gender'] = df_user['gender'].str.title()
             df_user['level'] = df_user['level'].str.title()
             df_workout['workout_id'] = df_workout.index
+            df_workout['bodyPart'] = df_workout['bodyPart'].str.split(', ')
             gender_work = df_workout[
                 (df_workout.gender == df_user.gender.values[0]) & \
                     (~df_workout.workout_id.isin(df_hist[df_hist.user_id == df_user.user_id.values[0]].workout_id))

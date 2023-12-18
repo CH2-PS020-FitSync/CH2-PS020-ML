@@ -84,7 +84,7 @@ def train(workout_data, model_path, history_data=None):
         train_test_split(merged_data[FEATURES], merged_data['rating'], test_size=0.2)
     print(merged_data)
 
-    all_workout_features = X_train['bodyPart'].explode().unique() # Spread the bodyPart
+    all_workout_features = merged_data['bodyPart'].explode().unique() # Spread the bodyPart
     workout_features_input = tf.keras.layers.Input(shape=(None,), name='bodyPart')
 
     workout_features_embeddings = tf.keras.layers.Embedding(
@@ -95,12 +95,21 @@ def train(workout_data, model_path, history_data=None):
         keepdims=True
     )(workout_features_embeddings)
 
+    workout_features_biases = tf.keras.layers.Embedding(input_dim=len(all_workout_features) + 1, output_dim=1)(workout_features_input)
+    workout_features_bias = tf.keras.layers.GlobalAveragePooling1D(keepdims=True)(workout_features_biases)
+
     for name, config in FEATURES_CONFIG.items():
+        config['encoding_layer_class'] = tf.keras.layers.IntegerLookup
         config['vocab'] = X_train[name].unique()
 
 
-    inputs = { # Already encoded inputs
+    inputs = {
         name: tf.keras.layers.Input(shape=(1,), name=name, dtype=config['dtype'])
+        for name, config in FEATURES_CONFIG.items()
+    }
+
+    inputs_encoded = {
+        name: config['encoding_layer_class'](vocabulary=config['vocab'])(inputs[name])
         for name, config in FEATURES_CONFIG.items()
     }
 
@@ -109,31 +118,54 @@ def train(workout_data, model_path, history_data=None):
             input_dim=len(config['vocab']) + 1,
             output_dim=32,
             embeddings_regularizer=tf.keras.regularizers.l2(0.1)
-        )(inputs[name])
+        )(inputs_encoded[name])
+        for name, config in FEATURES_CONFIG.items()
+    }
+
+    biases = {
+        name: tf.keras.layers.Embedding(
+            input_dim=len(config['vocab']) + 1,
+            output_dim=1
+        )(inputs_encoded[name])
         for name, config in FEATURES_CONFIG.items()
     }
 
     # https://stackoverflow.com/questions/49164230/
     # deep-neural-network-skip-connection-implemented-as-summation-vs-concatenation/49179305#49179305
-    user_embedding = tf.keras.layers.Concatenate(axis=1)([ 
+    user_embedding = tf.keras.layers.Add()([ 
             embeddings[name]
             for name, config in FEATURES_CONFIG.items()
             if config['entity'] == 'user'
         ]
     )
 
-    workout_embedding = tf.keras.layers.Concatenate(axis=1)([
+    workout_embedding = tf.keras.layers.Add()([
             embeddings[name]
             for name, config in FEATURES_CONFIG.items()
             if config['entity'] == 'workout'
         ] + [workout_features_embedding]
     )
 
+    user_bias = tf.keras.layers.Add()([
+            biases[name]
+            for name, config in FEATURES_CONFIG.items()
+            if config['entity'] == 'user'
+        ]
+    )
+
+    workout_bias = tf.keras.layers.Add()([
+            biases[name]
+            for name, config in FEATURES_CONFIG.items()
+            if config['entity'] == 'workout'
+        ] + [workout_features_bias]
+    )
+
     dot = tf.keras.layers.Dot(axes=2)([user_embedding, workout_embedding])
-    flatten = tf.keras.layers.Flatten()(dot)
+    add = tf.keras.layers.Add()([dot, user_bias, workout_bias])
+    flatten = tf.keras.layers.Flatten()(add)
     range_output = tf.keras.layers.Lambda(
         lambda x: 10 * tf.nn.sigmoid(x)
-    )(flatten)
+    )(flatten) # Multiple outputs, can't use Dense with 1 output [ERR]
 
     model = tf.keras.Model(
         inputs=[inputs[name] for name in FEATURES_CONFIG.keys()] + [workout_features_input],
@@ -193,6 +225,8 @@ def work_predict_n(model, le, n, gender_workout, df_user):
         'bodyPart': tf.ragged.constant(user_merge['bodyPart'].values)
     }
 
+    print(data)
+
     result = model.predict(data)
 
     top_n_index = np.argpartition(-result[:, 0], n)[:n] # Top n max values index
@@ -221,17 +255,19 @@ if __name__ == '__main__':
     df_workout_copy, df_hist_copy = \
         encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_json)
 
-    model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
+    # model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
+    model = tf.keras.models.load_model(MODEL_PATH)
+    LABEL_ENCODER = CustomEncoder(label_json, True)
 
 
     user = pd.DataFrame([{
         'user_id': 'x',
         'name': 'New',
-        'gender': 'Male',
+        'gender': 'Female',
         'weight': 62.5,
         'height': 155,
         'age': 17,
-        'level': 'Expert'
+        'level': 'Intermediate'
     }])
 
     gender_work = df_workout[
