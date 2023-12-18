@@ -131,9 +131,8 @@ def train(workout_data, model_path, history_data=None):
 
     dot = tf.keras.layers.Dot(axes=2)([user_embedding, workout_embedding])
     flatten = tf.keras.layers.Flatten()(dot)
-    range_output = tf.keras.layers.Dense(
-        1,
-        activation=lambda x: 10 * tf.nn.sigmoid(x)
+    range_output = tf.keras.layers.Lambda(
+        lambda x: 10 * tf.nn.sigmoid(x)
     )(flatten)
 
     model = tf.keras.Model(
