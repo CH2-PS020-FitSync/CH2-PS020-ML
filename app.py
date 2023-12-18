@@ -11,10 +11,10 @@ from model.custom_encoder import CustomEncoder
 from model.nutrition_recommender import MODEL_PATH as NUTRITION_MODEL_PATH
 from model.nutrition_recommender import label_json as nutrition_label_json
 from model.nutrition_recommender import nutrition_predict
-from model.workout_recommender import MODEL_PATH as WORK_MODEL_PATH
-from model.workout_recommender import WORKOUT_DROP
-from model.workout_recommender import label_json as work_label_json
-from model.workout_recommender import work_predict_n, workout_json
+from model.workout_recommender_embedding import MODEL_PATH as WORK_MODEL_PATH
+from model.workout_recommender_embedding import WORKOUT_DROP
+from model.workout_recommender_embedding import label_json as work_label_json
+from model.workout_recommender_embedding import work_predict_n, workout_json
 
 try:
     from dotenv import load_dotenv

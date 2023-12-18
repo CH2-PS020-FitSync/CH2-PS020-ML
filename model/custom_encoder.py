@@ -1,3 +1,4 @@
+# @title
 import json
 
 import numpy as np
@@ -9,7 +10,7 @@ class CustomEncoder:
         self.encoder = self.load_encoder() if encoder_path and load_encoder else dict()
 
     def load_encoder(self):
-        
+
         with open(self.encoder_path, 'r') as f:
             return json.load(f)
 
@@ -22,18 +23,28 @@ class CustomEncoder:
         self.encoder[name] = self.encoder.get(name, dict())
 
         unique_values = np.unique(data)
-        previous = len(self.encoder[name])
-        new_entries = {
-            val: previous + idx
-            for idx, val in enumerate(unique_values)
-            if val not in self.encoder[name]
-        }
+        previous_n = len(self.encoder[name])
+        new_entries = {}
+
+        # Deal with it for now
+        for value in unique_values:
+            if isinstance(value, list):
+                for key in value:
+                    if key not in self.encoder[name] and key not in new_entries.keys():
+                        new_entries[key] = previous_n
+                        previous_n += 1
+            elif value not in self.encoder[name]:
+                new_entries[value] = previous_n
+                previous_n += 1
 
         if new_entries:
             self.encoder[name].update(new_entries)
 
     def transform(self, name, data):
         if name in self.encoder:
+            if isinstance(data.values[0], list):
+                return [[self.encoder[name].get(key) for key in d] for d in data]
+
             return data.map(self.encoder[name])
         else:
             raise ValueError(f"No encoder found for '{name}'")
