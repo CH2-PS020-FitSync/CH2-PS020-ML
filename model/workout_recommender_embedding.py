@@ -225,8 +225,6 @@ def work_predict_n(model, le, n, gender_workout, df_user):
         'bodyPart': tf.ragged.constant(user_merge['bodyPart'].values)
     }
 
-    print(data)
-
     result = model.predict(data)
 
     top_n_index = np.argpartition(-result[:, 0], n)[:n] # Top n max values index
@@ -255,9 +253,7 @@ if __name__ == '__main__':
     df_workout_copy, df_hist_copy = \
         encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_json)
 
-    # model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
-    model = tf.keras.models.load_model(MODEL_PATH)
-    LABEL_ENCODER = CustomEncoder(label_json, True)
+    model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
 
 
     user = pd.DataFrame([{
