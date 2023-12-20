@@ -19,7 +19,7 @@ CAT_COLS = ['Gender', 'Activity_Level', 'Goal']
 LABEL_ENCODER = CustomEncoder()
 
 nutrition_json = ROOT / 'data/nutrition_data.json'
-label_json = ROOT / 'nutrition_label.json'
+label_json = ROOT / 'model/nutrition_label.json'
 
 
 def preprocess_df(df):

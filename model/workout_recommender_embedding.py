@@ -33,7 +33,7 @@ workout_json = ROOT / 'data/gymvisual-use-model.json'
 user_json = ROOT / 'data/dummy_user.json'
 user_act_json = ROOT / 'data/dummy_user_act.json'
 hist_json = ROOT / 'data/work-hist.json'
-label_json = ROOT / 'workout_hist_label.json'
+label_json = ROOT / 'model/workout_hist_label.json'
 
 
 def get_col_to_encode(*dataframes, le=None, output_path=None):
