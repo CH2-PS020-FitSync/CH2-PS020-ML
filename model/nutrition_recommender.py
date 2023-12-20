@@ -66,7 +66,7 @@ def train(dataframe, model_path):
         metrics=['mae', 'mse']
     )
 
-    model.fit(
+    history = model.fit(
         X_train, y_train,
         validation_data=(X_test, y_test),
         batch_size=1000,
@@ -81,7 +81,7 @@ def train(dataframe, model_path):
     print('Loss:', loss[:10])
     model.save(model_path)
 
-    return model
+    return history, model
 
 
 def nutrition_predict(model, df_user, le):
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     preprocess_df(df_nutrition)
     encode_cols(df_nutrition, CAT_COLS, LABEL_ENCODER, label_json)
 
-    model = train(df_nutrition, MODEL_PATH)
+    history, model = train(df_nutrition, MODEL_PATH)
 
 
     # Weight goals must be transformed from actual goal in kgs to percentage of body mass to lose or gain
@@ -127,3 +127,23 @@ if __name__ == '__main__':
     print('Predicted Nutritional Needs:')
     for target, pred in zip(TARGET, prediction.keys()):
         print(f'{target:<25}:{prediction[pred]}')
+
+
+    # tf.keras.utils.plot_model(model, to_file=ROOT/'model/nutrition_reg.png', show_shapes=True)
+    
+    
+    # import matplotlib.pyplot as plt
+
+    # acc = history.history['mse']
+    # val_acc = history.history['val_mse']
+    # loss = history.history['loss']
+    # val_loss = history.history['val_mse']
+
+    # epochs = range(100)
+
+    # plt.plot(epochs, acc, 'r', label='Training MSE')
+    # plt.plot(epochs, val_acc, 'b', label='Validation MSE')
+    # plt.title('Nutrition models error')
+    # plt.legend(loc=0)
+    
+    # plt.savefig(ROOT/'model/nutrition_error.png')

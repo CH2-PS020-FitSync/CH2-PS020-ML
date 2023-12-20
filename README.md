@@ -3,8 +3,9 @@ Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
 
 # Table of Contents
 * [Machine Learning Team](#-machine-learning-team)
-* [Installation](#installation)
-* [Usage](#usage)
+* [Installation](#-installation)
+* [Usage](#-usage)
+* [Models Documentation](#-models-documentation)
 * [API Documentation](#-api-documentation)
 
 # <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tensorflow/tensorflow-original.svg" alt="flask" width="30" height="30"/> Machine Learning Team
@@ -47,7 +48,7 @@ Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
     </tbody>
 </table>
 
-# Installation
+# ⚙️ Installation
 1. Clone the repository: 
     ```bash
     git clone https://github.com/CH2-PS020-FitSync/CH2-PS020-ML.git
@@ -61,7 +62,7 @@ Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
     pip install -r requirements.txt
     ```
 
-# Usage
+# 💼 Usage
 1. Set up the environments variable:
     ```properties
     FLASK_RUN_HOST=<HOST>
@@ -74,6 +75,43 @@ Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
     ```cmd
     flask run [--host=<HOST>] [--port=<PORT>]
     ```
+
+# 📝 Models Documentation
+## 💪 Workout Recommender
+<img src="https://msha096.github.io/blog/assets/img/movie_dataset.png"/>
+
+Our workout recommendation system is inspired by a [TensorFlow](https://www.tensorflow.org/) implementation of [LightFM](https://arxiv.org/abs/1507.08439) on [this article](https://towardsdatascience.com/a-performant-recommender-system-without-cold-start-problem-69bf2f0f0b9b), [LightFM introduction](https://msha096.github.io/blog/lightfm/). We modifies the implementation to align with our specific objectives, then simplify its architecture but also improve its performance on our dataset. The reason we adopt LightFM is based on its ability to mitigate the effect of [Cold start](https://en.wikipedia.org/wiki/Cold_start_(recommender_systems)) problem in a recommendation by creating a [Matrix Factorization](https://en.wikipedia.org/wiki/Matrix_factorization_(recommender_systems)) and generate a user-item embeddings to capture important features and characteristics, enabling  the recommendation inference without relying on historical interaction data.
+
+<img src="model\embedding_workout.png"/>
+
+Our model's performance is evaluated using the [Mean Squared Error (MSE)](https://en.wikipedia.org/wiki/Mean_squared_error) metric. To optimize the training process, we chose the [Adam](https://golden.com/wiki/Adam_(support_vector_machine)) optimizer. Adam has the benefit of adaptive learning rate techniques, the main reason why we chose Adam compared to traditional [Stochastic Gradient Descent (SGD)](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).<br /><br />
+
+**Final metrics**:
+```
+MSE: 2.0721
+VAL_MSE: 2.2145
+MAE: 1.2287
+VAL_MAE: 1.2760
+```
+
+<img src="model\workout_embedding_error.png"/>
+
+## 🥗 Nutrition Recommender
+Our nutrition recommendation system employs a straightforward neural network architecture consisting of two computational layers: an input layer and a hidden layer. The input layer receives the raw features, while the hidden layer applies [ReLU (Rectified Linear Unit)](https://en.wikipedia.org/wiki/Rectifier_(neural_networks)) activation functions, introducing non-linearity to capture complex patterns in the data. The output layer, utilizing a linear activation function, is designed for regression-based tasks. This architecture is particularly suited for predicting continuous values, making it well-suited for regression applications in our recommendation system.
+
+<img src="model\nutrition_reg.png"/>
+
+Our model's performance is evaluated using the [Mean Squared Error (MSE)](https://en.wikipedia.org/wiki/Mean_squared_error) metric. To optimize the training process, we chose the [Adam](https://golden.com/wiki/Adam_(support_vector_machine)) optimizer. Adam has the benefit of adaptive learning rate techniques, the main reason why we chose Adam compared to traditional [Stochastic Gradient Descent (SGD)](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).<br /><br />
+
+**Final metrics**:
+```
+MSE: 6498.6909
+VAL_MSE: 6597.4810
+MAE: 40.2510
+VAL_MAE: 40.1201
+```
+
+<img src="model\nutrition_error.png"/>
 
 # <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/flask/flask-original.svg" alt="flask" width="30" height="30"/> API Documentation
 The API contains two kinds of endpoint for inference

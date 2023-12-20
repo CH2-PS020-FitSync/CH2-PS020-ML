@@ -24,9 +24,9 @@ FEATURES_CONFIG = {
     'level_x': {'entity': 'user', 'dtype': tf.int64},
     'workout_id': {'entity': 'workout', 'dtype': tf.int64},
     # 'bodyPart': {'entity': 'workout', 'dtype': tf.int64},
-    # 'gender_y': {'entity': 'workout', 'dtype': tf.int64},
-    # 'level_y': {'entity': 'workout', 'dtype': tf.int64},
-    # 'type': {'entity': 'workout', 'dtype': tf.int64},
+    'gender_y': {'entity': 'workout', 'dtype': tf.int64},
+    'level_y': {'entity': 'workout', 'dtype': tf.int64},
+    'type': {'entity': 'workout', 'dtype': tf.int64},
 }
 
 workout_json = ROOT / 'data/gymvisual-use-model.json'
@@ -84,6 +84,7 @@ def train(workout_data, model_path, history_data=None):
         train_test_split(merged_data[FEATURES], merged_data['rating'], test_size=0.2)
     print(merged_data)
 
+
     all_workout_features = merged_data['bodyPart'].explode().unique() # Spread the bodyPart
     workout_features_input = tf.keras.layers.Input(shape=(None,), name='bodyPart')
 
@@ -94,9 +95,6 @@ def train(workout_data, model_path, history_data=None):
     workout_features_embedding = tf.keras.layers.GlobalAveragePooling1D(
         keepdims=True
     )(workout_features_embeddings)
-
-    workout_features_biases = tf.keras.layers.Embedding(input_dim=len(all_workout_features) + 1, output_dim=1)(workout_features_input)
-    workout_features_bias = tf.keras.layers.GlobalAveragePooling1D(keepdims=True)(workout_features_biases)
 
     for name, config in FEATURES_CONFIG.items():
         config['encoding_layer_class'] = tf.keras.layers.IntegerLookup
@@ -122,50 +120,28 @@ def train(workout_data, model_path, history_data=None):
         for name, config in FEATURES_CONFIG.items()
     }
 
-    biases = {
-        name: tf.keras.layers.Embedding(
-            input_dim=len(config['vocab']) + 1,
-            output_dim=1
-        )(inputs_encoded[name])
-        for name, config in FEATURES_CONFIG.items()
-    }
-
     # https://stackoverflow.com/questions/49164230/
     # deep-neural-network-skip-connection-implemented-as-summation-vs-concatenation/49179305#49179305
-    user_embedding = tf.keras.layers.Add()([ 
+    user_embedding = tf.keras.layers.Concatenate(axis=1)([ 
             embeddings[name]
             for name, config in FEATURES_CONFIG.items()
             if config['entity'] == 'user'
         ]
     )
 
-    workout_embedding = tf.keras.layers.Add()([
+    workout_embedding = tf.keras.layers.Concatenate(axis=1)([
             embeddings[name]
             for name, config in FEATURES_CONFIG.items()
             if config['entity'] == 'workout'
         ] + [workout_features_embedding]
     )
 
-    user_bias = tf.keras.layers.Add()([
-            biases[name]
-            for name, config in FEATURES_CONFIG.items()
-            if config['entity'] == 'user'
-        ]
-    )
-
-    workout_bias = tf.keras.layers.Add()([
-            biases[name]
-            for name, config in FEATURES_CONFIG.items()
-            if config['entity'] == 'workout'
-        ] + [workout_features_bias]
-    )
 
     dot = tf.keras.layers.Dot(axes=2)([user_embedding, workout_embedding])
-    add = tf.keras.layers.Add()([dot, user_bias, workout_bias])
-    flatten = tf.keras.layers.Flatten()(add)
-    range_output = tf.keras.layers.Lambda(
-        lambda x: 10 * tf.nn.sigmoid(x)
-    )(flatten) # Multiple outputs, can't use Dense with 1 output [ERR]
+    flatten = tf.keras.layers.Flatten()(dot)
+    range_output = tf.keras.layers.Dense(1, activation='sigmoid')(flatten)
+    range_output = tf.keras.layers.Lambda(lambda x: 10 * x)(range_output)
+
 
     model = tf.keras.Model(
         inputs=[inputs[name] for name in FEATURES_CONFIG.keys()] + [workout_features_input],
@@ -178,6 +154,7 @@ def train(workout_data, model_path, history_data=None):
         metrics=['mse', 'mae']
     )
 
+
     X_training_tf = {
         **{name: X_train[name].values for name in FEATURES_CONFIG.keys()},
         'bodyPart': tf.ragged.constant(X_train['bodyPart'].values)
@@ -187,10 +164,12 @@ def train(workout_data, model_path, history_data=None):
         'bodyPart': tf.ragged.constant(X_test['bodyPart'].values)
     }
 
-    model.fit(
+
+    history = model.fit(
         x=X_training_tf,
         y=Y_train.values,
         epochs=100,
+        batch_size=1000,
         validation_data=(X_testing_tf, Y_test.values),
         verbose=2
     )
@@ -200,7 +179,7 @@ def train(workout_data, model_path, history_data=None):
     print(f'Test loss: {loss}')
     model.save(model_path)
 
-    return model
+    return history, model
 
 
 def work_predict_n(model, le, n, gender_workout, df_user):
@@ -253,7 +232,7 @@ if __name__ == '__main__':
     df_workout_copy, df_hist_copy = \
         encode_hist_work(df_workout, df_hist, LABEL_ENCODER, label_json)
 
-    model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
+    history, model = train(df_workout_copy, MODEL_PATH, history_data=df_hist_copy)
 
 
     user = pd.DataFrame([{
@@ -278,3 +257,23 @@ if __name__ == '__main__':
 
     df_prediction = gender_work[gender_work['workout_id'].isin(top_n_prediction)]
     print(df_prediction)
+
+
+    # tf.keras.utils.plot_model(model, to_file=ROOT/'model/embedding_workout.png', show_shapes=True)
+
+
+    # import matplotlib.pyplot as plt
+    
+    # acc = history.history['mse']
+    # val_acc = history.history['val_mse']
+    # loss = history.history['loss']
+    # val_loss = history.history['val_mse']
+
+    # epochs = range(100)
+
+    # plt.plot(epochs, acc, 'r', label='Training MSE')
+    # plt.plot(epochs, val_acc, 'b', label='Validation MSE')
+    # plt.title('Workout embedding models error')
+    # plt.legend(loc=0)
+
+    # plt.savefig(ROOT/'model/workout_embedding_error.png')
