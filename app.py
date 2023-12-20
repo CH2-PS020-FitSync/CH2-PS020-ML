@@ -56,6 +56,15 @@ def predict_workout():
             
             connection.close()
 
+            if df_user.empty:
+                return jsonify({
+                    'data': None,
+                    'status': {
+                        'code': 404,
+                        'message': 'User not found'
+                    }
+                }), 404
+
             df_user['gender'] = df_user['gender'].str.title()
             df_user['level'] = df_user['level'].str.title()
             df_workout['workout_id'] = df_workout.index
@@ -104,9 +113,20 @@ def predict_nutrition():
             connection = open_connection()
 
             df_user = get_user_bmi_df(connection, user_id).apply(_get_goals_type, axis=1)
-            df_user['Age'] = df_user['Age'].apply(_get_age)
             
             connection.close()
+
+            if df_user.empty:
+                return jsonify({
+                    'data': None,
+                    'status': {
+                        'code': 404,
+                        'message': 'User not found'
+                    }
+                }), 404
+            
+            df_user = df_user.drop_duplicates(subset=['UserId'], keep='last')
+            df_user['Age'] = df_user['Age'].apply(_get_age)
 
             prediction = nutrition_predict(NUTRITION_MODEL, df_user, NUTRITION_LABEL_ENCODER)
 

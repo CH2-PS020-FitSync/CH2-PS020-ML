@@ -118,7 +118,9 @@ MAE: 40.2510
 VAL_MAE: 40.1201
 ```
 
-<img src="model\nutrition_error.png"/>
+<p align="center">
+    <img src="model\nutrition_error.png"/>
+</p>
 
 # <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/flask/flask-original.svg" alt="flask" width="30" height="30"/> API Documentation
 The API contains two kinds of endpoint for inference

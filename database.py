@@ -78,7 +78,7 @@ def get_user_bmi_df(connection, user_id): # 'Age', 'Weight', 'Gender', 'Height',
         params={
             'user_id': user_id
         }
-    ).drop_duplicates(subset=['UserId'], keep='last')
+    )
 
     return result
 
