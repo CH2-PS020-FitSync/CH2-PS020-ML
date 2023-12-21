@@ -90,7 +90,7 @@ def train(workout_data, model_path, history_data=None):
 
     workout_features_embeddings = tf.keras.layers.Embedding(
         input_dim=len(all_workout_features) + 1,
-        output_dim=32
+        output_dim=64
     )(workout_features_input)
     workout_features_embedding = tf.keras.layers.GlobalAveragePooling1D(
         keepdims=True
@@ -114,7 +114,7 @@ def train(workout_data, model_path, history_data=None):
     embeddings = {
         name: tf.keras.layers.Embedding(
             input_dim=len(config['vocab']) + 1,
-            output_dim=32,
+            output_dim=64,
             embeddings_regularizer=tf.keras.regularizers.l2(0.1)
         )(inputs_encoded[name])
         for name, config in FEATURES_CONFIG.items()
@@ -122,14 +122,16 @@ def train(workout_data, model_path, history_data=None):
 
     # https://stackoverflow.com/questions/49164230/
     # deep-neural-network-skip-connection-implemented-as-summation-vs-concatenation/49179305#49179305
-    user_embedding = tf.keras.layers.Concatenate(axis=1)([ 
+    user_embedding = tf.keras.layers.Concatenate(axis=1)(
+        [ 
             embeddings[name]
             for name, config in FEATURES_CONFIG.items()
             if config['entity'] == 'user'
         ]
     )
 
-    workout_embedding = tf.keras.layers.Concatenate(axis=1)([
+    workout_embedding = tf.keras.layers.Concatenate(axis=1)(
+        [
             embeddings[name]
             for name, config in FEATURES_CONFIG.items()
             if config['entity'] == 'workout'
@@ -139,8 +141,9 @@ def train(workout_data, model_path, history_data=None):
 
     dot = tf.keras.layers.Dot(axes=2)([user_embedding, workout_embedding])
     flatten = tf.keras.layers.Flatten()(dot)
-    range_output = tf.keras.layers.Dense(1, activation='sigmoid')(flatten)
-    range_output = tf.keras.layers.Lambda(lambda x: 10 * x)(range_output)
+    dense_1 = tf.keras.layers.Dense(32, activation='sigmoid')(flatten)
+    dense_2 = tf.keras.layers.Dense(1, activation='sigmoid')(dense_1)
+    range_output = tf.keras.layers.Lambda(lambda x: 10 * x)(dense_2)
 
 
     model = tf.keras.Model(

@@ -105,10 +105,10 @@ Our model's performance is evaluated using the [Mean Squared Error (MSE)](https:
 
 **Final metrics**:
 ```
-MSE: 2.0702
-VAL_MSE: 2.1673
-MAE: 1.2316
-VAL_MAE: 1.2440
+MSE: 2.0571
+VAL_MSE: 2.1033
+MAE: 1.2289
+VAL_MAE: 1.2397
 ```
 <p align="center">
     <img src="model\workout_embedding_error.png"/>
