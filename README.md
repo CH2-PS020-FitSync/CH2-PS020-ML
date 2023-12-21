@@ -115,7 +115,7 @@ VAL_MAE: 1.2397
 </p>
 
 ## 🥗 Nutrition Recommender
-Our nutrition recommendation system employs a straightforward neural network architecture consisting of two computational layers: an input layer and a hidden layer. The input layer receives the raw features, while the hidden layer applies [ReLU (Rectified Linear Unit)](https://en.wikipedia.org/wiki/Rectifier_(neural_networks)) activation functions, introducing non-linearity to capture complex patterns in the data. The output layer, utilizing a linear activation function, is designed for regression-based tasks. This architecture is particularly suited for predicting continuous values, making it well-suited for regression applications in our recommendation system.
+Our nutrition recommendation system employs a straightforward neural network architecture consisting of two computational hidden layers. The first two layers receives the  input, and applies [ReLU (Rectified Linear Unit)](https://en.wikipedia.org/wiki/Rectifier_(neural_networks)) activation functions, introducing non-linearity to capture complex patterns in the data. The output layer, utilizing a linear activation function, is designed for regression-based tasks. This architecture is particularly suited for predicting continuous values, making it well-suited for regression applications in our recommendation system.
 
 <p align="center">
     <img src="model\nutrition_reg.png"/>
