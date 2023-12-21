@@ -36,9 +36,58 @@ WORK_LABEL_ENCODER = CustomEncoder(encoder_path=work_label_json, load_encoder=Tr
 NUTRITION_LABEL_ENCODER = CustomEncoder(encoder_path=nutrition_label_json, load_encoder=True)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return 'Hello World'
+    return jsonify({
+        'about': 'FitSync Inference API',
+        'endpoints': [
+            '/workout_prediction',
+            '/nutrition_prediction'
+        ],
+        'authors': {
+            'machine_learning': [
+                { 
+                    'name': 'Steven Tribethran',
+                    'bangkit_id': 'M694BSY0582',
+                    'github_profile': 'https://www.github.com/Insisted'
+                },
+                { 
+                    'name': 'Darrel Cyril Gunawan',
+                    'bangkit_id': 'M108BSY1617',
+                    'github_profile': 'https://www.github.com/Darrelcyril29'
+                },
+                { 
+                    'name': 'Nigel Kusdenata',
+                    'bangkit_id': 'M108BSY1102',
+                    'github_profile': 'https://www.github.com/NigelKus'
+                }
+            ],
+            'cloud_computing': [
+                { 
+                    'name': 'Muhammad Alfayed Dennita',
+                    'bangkit_id': 'C134BSY3479',
+                    'github_profile': 'https://www.github.com/AlfayedDennita'
+                },
+                { 
+                    'name': 'Alida Shidqiya Naifa Ulmuflikhun',
+                    'bangkit_id': 'C248BSX4205',
+                    'github_profile': 'https://www.github.com/alidasn'
+                }
+            ],
+            'mobile_development': [
+                { 
+                    'name': 'Vincent',
+                    'bangkit_id': 'A694BSY2946',
+                    'github_profile': 'https://www.github.com/Vincent-2125250004'
+                },
+                { 
+                    'name': 'Hidayat',
+                    'bangkit_id': 'A550BKY4421',
+                    'github_profile': 'https://www.github.com/hkvil'
+                }
+            ]
+        }
+    })
 
 
 @app.route('/workout_prediction', methods=['POST']) # JSON Request -> UserId

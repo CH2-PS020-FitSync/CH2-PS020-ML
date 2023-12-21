@@ -18,7 +18,7 @@ steps:
       - '--region'
       - 'asia-southeast2'
       - '--memory'
-      - '1Gi'
+      - '2Gi'
       - '--service-account'
       - 'ml-team-cloud-run@fitsync-406408.iam.gserviceaccount.com'
       - '--add-cloudsql-instances'

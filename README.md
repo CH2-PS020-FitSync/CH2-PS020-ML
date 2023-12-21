@@ -14,34 +14,43 @@ Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
         <tr>
             <th>Name</th>
             <th>Bangkit-ID</th>
-            <th>Github</th>
+            <th>Socials</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>Darrel Cyril Gunawan</td>
             <td>M108BSY1617</td>
-            <td>
+            <td style="text-align: center;">
                 <a href="https://github.com/Darrelcyril29/">
                     <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="Github" />
+                </a>
+                <a href="https://www.linkedin.com/in/darrel-cyril-85517ba1/">
+                    <img src="https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
                 </a>
             </td>
         </tr>
         <tr>
             <td>Nigel Kusdenata</td>
             <td>M108BSY1102</td>
-            <td>
+            <td style="text-align: center;">
                 <a href="https://github.com/NigelKus/">
                     <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="Github" />
                 </a>
+                <a href="https://www.linkedin.com/in/nigel-kusdenata-32910528b/">
+                    <img src="https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+                    </a>
             </td>
         </tr>
         <tr>
             <td>Steven Tribethran</td>
             <td>M694BSY0582</td>
-            <td>
+            <td style="text-align: center;">
                 <a href="https://github.com/Insisted/">
                     <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="Github" />
+                </a>
+                <a href="https://www.linkedin.com/in/steven-tribethran/">
+                    <img src="https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
                 </a>
             </td>
         </tr>
@@ -77,18 +86,22 @@ Machine Learning part of FitSync's Workout Recommender and Nutrition Recommender
     ```
 
 # 📝 Models Documentation
+We made two models and serve it on Flask API, those are:
+* [Workout Recommender](#-workout-recommender)
+* [Nutrition Recommender](#-nutrition-recommender)
+
 ## 💪 Workout Recommender
 <p align="center">
     <img src="https://msha096.github.io/blog/assets/img/movie_dataset.png"/>
 </p>
 
-Our workout recommendation system is inspired by a [TensorFlow](https://www.tensorflow.org/) implementation of [LightFM](https://arxiv.org/abs/1507.08439) on [this article](https://towardsdatascience.com/a-performant-recommender-system-without-cold-start-problem-69bf2f0f0b9b), [LightFM introduction](https://msha096.github.io/blog/lightfm/). We modifies the implementation to align with our specific objectives, then simplify its architecture but also improve its performance on our dataset. The reason we adopt LightFM is based on its ability to mitigate the effect of [Cold start](https://en.wikipedia.org/wiki/Cold_start_(recommender_systems)) problem in a recommendation by creating a [Matrix Factorization](https://en.wikipedia.org/wiki/Matrix_factorization_(recommender_systems)) and generate a user-item embeddings to capture important features and characteristics, enabling  the recommendation inference without relying on historical interaction data.
+Our workout recommendation system is inspired by a [TensorFlow](https://www.tensorflow.org/) implementation of [LightFM](https://arxiv.org/abs/1507.08439) on [this article](https://towardsdatascience.com/a-performant-recommender-system-without-cold-start-problem-69bf2f0f0b9b), [LightFM introduction](https://msha096.github.io/blog/lightfm/). We modifies the implementation to align with our specific objectives, then simplify its architecture but also improve its performance on our dataset. The reason we adopt LightFM is based on its ability to mitigate the effect of [Cold start](https://en.wikipedia.org/wiki/Cold_start_(recommender_systems)) problem in a recommendation, We start building the model by creating a [Matrix Factorization](https://en.wikipedia.org/wiki/Matrix_factorization_(recommender_systems)) for collaborative filtering and generate a user-item embeddings then calculate the dot product to capture the relation between features and characteristics, enabling  the recommendation inference without relying on historical interaction data.
 
 <p align="center">
     <img src="model\embedding_workout.png"/>
 </p>
 
-Our model's performance is evaluated using the [Mean Squared Error (MSE)](https://en.wikipedia.org/wiki/Mean_squared_error) metric. To optimize the training process, we chose the [Adam](https://golden.com/wiki/Adam_(support_vector_machine)) optimizer. Adam has the benefit of adaptive learning rate techniques, the main reason why we chose Adam compared to traditional [Stochastic Gradient Descent (SGD)](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).<br /><br />
+Our model's performance is evaluated using the [Mean Squared Error (MSE)](https://en.wikipedia.org/wiki/Mean_squared_error) metric. To optimize the training process, we chose the [Adam](https://golden.com/wiki/Adam_(support_vector_machine)) optimizer. Adam has the benefit of adaptive learning rate techniques, the main reason why we chose Adam compared to traditional [Stochastic Gradient Descent (SGD)](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).<br/><br/>
 
 **Final metrics**:
 ```
@@ -108,7 +121,7 @@ Our nutrition recommendation system employs a straightforward neural network arc
     <img src="model\nutrition_reg.png"/>
 </p>
 
-Our model's performance is evaluated using the [Mean Squared Error (MSE)](https://en.wikipedia.org/wiki/Mean_squared_error) metric. To optimize the training process, we chose the [Adam](https://golden.com/wiki/Adam_(support_vector_machine)) optimizer. Adam has the benefit of adaptive learning rate techniques, the main reason why we chose Adam compared to traditional [Stochastic Gradient Descent (SGD)](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).<br /><br />
+Our model's performance is evaluated using the [Mean Squared Error (MSE)](https://en.wikipedia.org/wiki/Mean_squared_error) metric. To optimize the training process, we chose the [Adam](https://golden.com/wiki/Adam_(support_vector_machine)) optimizer. Adam has the benefit of adaptive learning rate techniques, the main reason why we chose Adam compared to traditional [Stochastic Gradient Descent (SGD)](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).<br/><br/>
 
 **Final metrics**:
 ```
@@ -128,7 +141,8 @@ The API contains two kinds of endpoint for inference
 2. nutrition Prediction ➤ [`/nutrition_predict`](#-nutrition_predict-post)
 
 <br/>**Base URL**:<br/>
-https://prod-fitsync-ml-api-k3bfbgtn5q-et.a.run.app/
+Development: https://fitsync-ml-api-k3bfbgtn5q-et.a.run.app/ <br/>
+Production: https://prod-fitsync-ml-api-k3bfbgtn5q-et.a.run.app/
 
 ## 🔗 /workout_predict `POST`
 **Body:**
@@ -136,7 +150,7 @@ https://prod-fitsync-ml-api-k3bfbgtn5q-et.a.run.app/
 <br/><br/>
 
 **Successful Responses:**<br/>
-🟢 **200** OK
+🟢 **200 OK**
 
 ```json
 {
@@ -157,7 +171,7 @@ https://prod-fitsync-ml-api-k3bfbgtn5q-et.a.run.app/
 <br/><br/>
 
 **Successful Responses:**<br/>
-🟢 **200** OK
+🟢 **200 OK**
 
 ```json
 {
