@@ -133,17 +133,24 @@ if __name__ == '__main__':
     
     
     # import matplotlib.pyplot as plt
-
-    # acc = history.history['mse']
-    # val_acc = history.history['val_mse']
-    # loss = history.history['loss']
-    # val_loss = history.history['val_mse']
+    
+    # mse = history.history['mse']
+    # val_mse = history.history['val_mse']
+    # mae = history.history['mae']
+    # val_mae = history.history['val_mae']
 
     # epochs = range(100)
 
-    # plt.plot(epochs, acc, 'r', label='Training MSE')
-    # plt.plot(epochs, val_acc, 'b', label='Validation MSE')
-    # plt.title('Nutrition models error')
-    # plt.legend(loc=0)
+    # figure, axis = plt.subplots(1, 2, figsize=(16, 9))
+
+    # axis[0].plot(epochs, mse, 'r', label='Training MSE')
+    # axis[0].plot(epochs, val_mse, 'b', label='Validation MSE')
+    # axis[0].set_title('Nutrition MSE')
+    # axis[0].legend(loc=0)
+
+    # axis[1].plot(epochs, mae, 'r', label='Training MAE')
+    # axis[1].plot(epochs, val_mae, 'b', label='Validation MAE')
+    # axis[1].set_title('Nutrition MAE')
+    # axis[1].legend(loc=0)
     
     # plt.savefig(ROOT/'model/nutrition_error.png')
