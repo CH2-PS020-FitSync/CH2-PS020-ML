@@ -19,14 +19,14 @@ FEATURES = ['user_id', 'gender_x', 'level_x', 'workout_id', 'type', 'bodyPart', 
 WORKOUT_DROP = ['desc', 'jpg', 'gif', 'duration', '__collections__']
 LABEL_ENCODER = CustomEncoder()
 FEATURES_CONFIG = {
-    'user_id': {'entity': 'user', 'dtype': tf.int64},
-    'gender_x': {'entity': 'user', 'dtype': tf.int64},
-    'level_x': {'entity': 'user', 'dtype': tf.int64},
-    'workout_id': {'entity': 'workout', 'dtype': tf.int64},
-    # 'bodyPart': {'entity': 'workout', 'dtype': tf.int64},
-    'gender_y': {'entity': 'workout', 'dtype': tf.int64},
-    'level_y': {'entity': 'workout', 'dtype': tf.int64},
-    'type': {'entity': 'workout', 'dtype': tf.int64},
+    'user_id': {'entity': 'user'},
+    'gender_x': {'entity': 'user'},
+    'level_x': {'entity': 'user'},
+    'workout_id': {'entity': 'workout'},
+    # 'bodyPart': {'entity': 'workout'},
+    'gender_y': {'entity': 'workout'},
+    'level_y': {'entity': 'workout'},
+    'type': {'entity': 'workout'},
 }
 
 workout_json = ROOT / 'data/gymvisual-use-model.json'
@@ -97,17 +97,16 @@ def train(workout_data, model_path, history_data=None):
     )(workout_features_embeddings)
 
     for name, config in FEATURES_CONFIG.items():
-        config['encoding_layer_class'] = tf.keras.layers.IntegerLookup
         config['vocab'] = X_train[name].unique()
 
 
     inputs = {
-        name: tf.keras.layers.Input(shape=(1,), name=name, dtype=config['dtype'])
+        name: tf.keras.layers.Input(shape=(1,), name=name, dtype=tf.int64)
         for name, config in FEATURES_CONFIG.items()
     }
 
     inputs_encoded = {
-        name: config['encoding_layer_class'](vocabulary=config['vocab'])(inputs[name])
+        name: tf.keras.layers.IntegerLookup(vocabulary=config['vocab'])(inputs[name])
         for name, config in FEATURES_CONFIG.items()
     }
 
@@ -147,7 +146,7 @@ def train(workout_data, model_path, history_data=None):
 
 
     model = tf.keras.Model(
-        inputs=[inputs[name] for name in FEATURES_CONFIG.keys()] + [workout_features_input],
+        inputs=[inputs[name] for name in FEATURES_CONFIG] + [workout_features_input],
         outputs=range_output
     )
 
@@ -159,11 +158,17 @@ def train(workout_data, model_path, history_data=None):
 
 
     X_training_tf = {
-        **{name: X_train[name].values for name in FEATURES_CONFIG.keys()},
+        **{
+            name: X_train[name].values
+            for name in FEATURES_CONFIG
+        },
         'bodyPart': tf.ragged.constant(X_train['bodyPart'].values)
     }
     X_testing_tf = {
-        **{name: X_test[name].values for name in FEATURES_CONFIG.keys()},
+        **{
+            name: X_test[name].values
+            for name in FEATURES_CONFIG
+        },
         'bodyPart': tf.ragged.constant(X_test['bodyPart'].values)
     }
 
@@ -203,7 +208,10 @@ def work_predict_n(model, le, n, gender_workout, df_user):
     user_merge['user_id'] = user_merge['user_id'].fillna(-1).astype(np.int64) # New User ID
 
     data = {
-        **{name: user_merge[name].values for name in FEATURES_CONFIG.keys()},
+        **{
+            name: user_merge[name].values
+            for name in FEATURES_CONFIG
+        },
         'bodyPart': tf.ragged.constant(user_merge['bodyPart'].values)
     }
 
